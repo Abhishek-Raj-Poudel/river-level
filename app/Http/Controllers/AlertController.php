@@ -4,41 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\RiverLevel;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+/* use Illuminate\Support\Facades\Auth; */
 
 class AlertController extends Controller
 {
-    /* public function checkAlert(Request $request) */
-    /* { */
-    /*     $user = Auth::user(); */
-    /**/
-    /*     if (!$user || !$user->lat || !$user->lng) { */
-    /*         return response()->json(['message' => 'User location not available.'], 400); */
-    /*     } */
-    /**/
-    /*     $userLat = $user->lat; */
-    /*     $userLng = $user->lng; */
-    /**/
-    /*     // Find the closest river level entry */
-    /*     $closestRiver = RiverLevel::all()->sortBy(function ($river) use ($userLat, $userLng) { */
-    /*         $distance = sqrt(pow($userLat - $river->lat, 2) + pow($userLng - $river->lng, 2)); */
-    /*         return $distance; */
-    /*     })->first(); */
-    /**/
-    /*     if (!$closestRiver) { */
-    /*         return response()->json(['message' => 'No river level data available.'], 404); */
-    /*     } */
-    /**/
-    /*     $alertTriggered = $closestRiver->level > $closestRiver->threshold; */
-    /**/
-    /*     return response()->json([ */
-    /*         'river_name' => $closestRiver->river_name, */
-    /*         'river_level' => $closestRiver->level, */
-    /*         'river_threshold' => $closestRiver->threshold, */
-    /*         'alert_triggered' => $alertTriggered, */
-    /*         'message' => $alertTriggered ? 'River level is above threshold!' : 'River level is normal.' */
-    /*     ]); */
-    /* } */
 
 public function check(Request $request)
     {
@@ -52,7 +21,7 @@ public function check(Request $request)
             ]);
         }
 
-        
+
         $nearbyRivers = RiverLevel::selectRaw("
             id, river_name, lat, lng, level, threshold,
             (6371 * acos(
