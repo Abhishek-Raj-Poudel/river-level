@@ -3,6 +3,7 @@ import AppLayout from '@/layouts/app-layout';
 import { dashboard } from '@/routes';
 import { SharedData, User, type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
+import LocationForm from './location-form';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -22,6 +23,8 @@ export default function Dashboard() {
                 <h1 className="text-xl font-bold mb-4">Welcome, user </h1>
                 <p>📍 Your location: {auth.user.lat}, {auth.user.lng}</p>
             </div>
+
+            <LocationForm user={auth.user} />
         </AppLayout>
     );
 }
