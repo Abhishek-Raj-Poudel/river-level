@@ -1,13 +1,13 @@
 <?php
 
+use App\Http\Controllers\RiverController;
 use App\Http\Controllers\UserLocationController;
 use App\Http\Controllers\AlertController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('welcome');
-})->name('home');
+Route::get('/', [RiverController::class, 'index'])->name('home');
+Route::get('/river/{river:uid}', [RiverController::class, 'show'])->name('river.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
 

@@ -12,12 +12,22 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('river_levels', function (Blueprint $table) {
-            $table->id();
-            $table->string('river_name');
+            $table->string('id')->primary();
+            $table->string('name');
+            $table->string('country');
+            $table->string('continent');
+            $table->integer('length');
+            $table->float('current_water_level');
+            $table->float('normal_water_level');
+            $table->string('status');
+            $table->float('current_flow_rate');
+            $table->float('average_flow_rate');
+            $table->float('temperature');
             $table->decimal('lat', 10, 7);
             $table->decimal('lng', 10, 7);
-            $table->float('level');
-            $table->float('threshold');
+            $table->text('description');
+            $table->timestamp('last_updated');
+            $table->json('weekly_data');
             $table->timestamps();
         });
     }

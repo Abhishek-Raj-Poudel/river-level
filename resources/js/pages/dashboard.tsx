@@ -37,14 +37,14 @@ export default function Dashboard() {
     const [connectionStatus, setConnectionStatus] = useState<string>('Connecting...');
     const [debugInfo, setDebugInfo] = useState<string[]>([]);
 
-  const addDebugInfo = (message: string) => {
+    const addDebugInfo = (message: string) => {
         const timestamp = new Date().toLocaleTimeString();
-        setDebugInfo(prev => [`[${timestamp}] ${message}`, ...prev.slice(0, 9)]);
+        setDebugInfo((prev) => [`[${timestamp}] ${message}`, ...prev.slice(0, 9)]);
         console.log(message);
     };
 
     useEffect(() => {
- addDebugInfo('🔌 Setting up river level listener...');
+        addDebugInfo('🔌 Setting up river level listener...');
 
         // Check if Echo is properly initialized
         if (!echo) {
@@ -54,7 +54,7 @@ export default function Dashboard() {
 
         // addDebugInfo(`📡 Echo instance found: ${echo.connector?.name || 'unknown connector'}`);
 
-try {
+        try {
             const channel = echo.channel('river-levels');
 
             // Your main event listener
@@ -81,7 +81,6 @@ try {
             });
 
             addDebugInfo('📻 Event listeners attached');
-
         } catch (error) {
             addDebugInfo(`❌ Error setting up channel: ${error}`);
         }
@@ -97,7 +96,7 @@ try {
         };
     }, []);
 
-  const testConnection = () => {
+    const testConnection = () => {
         addDebugInfo('🧪 Testing connection...');
 
         // Check if we can access the channel

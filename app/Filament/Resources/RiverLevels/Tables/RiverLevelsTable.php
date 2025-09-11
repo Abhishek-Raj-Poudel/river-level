@@ -14,28 +14,24 @@ class RiverLevelsTable
     {
         return $table
             ->columns([
-                TextColumn::make('river_name')
+                TextColumn::make('name')
                     ->searchable(),
-                TextColumn::make('lat')
+                TextColumn::make('country')
+                    ->searchable(),
+                TextColumn::make('status')
+                    ->searchable(),
+                TextColumn::make('current_water_level')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('lng')
+                TextColumn::make('normal_water_level')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('level')
+                TextColumn::make('temperature')
                     ->numeric()
                     ->sortable(),
-                TextColumn::make('threshold')
-                    ->numeric()
-                    ->sortable(),
-                TextColumn::make('created_at')
+                TextColumn::make('last_updated')
                     ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
             ])
             ->filters([
                 //

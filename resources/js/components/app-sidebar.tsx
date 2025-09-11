@@ -14,11 +14,9 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
     },
-
 ];
 
-const footerNavItems: NavItem[] = [
-];
+const footerNavItems: NavItem[] = [];
 
 export function AppSidebar() {
     return (

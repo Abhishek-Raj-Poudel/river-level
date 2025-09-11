@@ -8,8 +8,8 @@ import AuthLayout from '@/layouts/auth-layout';
 import { register } from '@/routes';
 import { request } from '@/routes/password';
 import { Head, useForm } from '@inertiajs/react';
-import { FormEvent } from 'react';
 import { LoaderCircle } from 'lucide-react';
+import { FormEvent } from 'react';
 
 interface LoginProps {
     status?: string;
@@ -77,7 +77,13 @@ export default function Login({ status, canResetPassword }: LoginProps) {
                         </div>
 
                         <div className="flex items-center space-x-3">
-                            <Checkbox id="remember" name="remember" checked={data.remember} onCheckedChange={(checked:boolean) => setData('remember', checked)} tabIndex={3} />
+                            <Checkbox
+                                id="remember"
+                                name="remember"
+                                checked={data.remember}
+                                onCheckedChange={(checked: boolean) => setData('remember', checked)}
+                                tabIndex={3}
+                            />
                             <Label htmlFor="remember">Remember me</Label>
                         </div>
 

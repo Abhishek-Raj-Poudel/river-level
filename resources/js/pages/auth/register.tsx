@@ -1,7 +1,7 @@
 import { login } from '@/routes';
 import { Head, useForm } from '@inertiajs/react';
-import { FormEvent } from 'react';
 import { LoaderCircle } from 'lucide-react';
+import { FormEvent } from 'react';
 
 import InputError from '@/components/input-error';
 import TextLink from '@/components/text-link';

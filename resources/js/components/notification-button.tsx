@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function NotificationButton() {
     const [permission, setPermission] = useState<NotificationPermission>('default');
@@ -27,7 +27,7 @@ export default function NotificationButton() {
                 // Show a test notification using browser's native notification
                 new Notification('🔔 Notifications Enabled!', {
                     body: 'You will now receive river level alerts',
-                    icon: '/favicon.ico'
+                    icon: '/favicon.ico',
                 });
             } else if (result === 'denied') {
                 alert('Notifications were blocked. You can enable them in your browser settings.');
@@ -40,16 +40,12 @@ export default function NotificationButton() {
     };
 
     if (!('Notification' in window)) {
-        return (
-            <div className="p-3 bg-gray-100 text-gray-600 rounded-lg text-sm">
-                ❌ This browser doesn't support notifications
-            </div>
-        );
+        return <div className="rounded-lg bg-gray-100 p-3 text-sm text-gray-600">❌ This browser doesn't support notifications</div>;
     }
 
     if (permission === 'granted') {
         return (
-            <div className="p-3 bg-green-100 text-green-800 rounded-lg flex items-center gap-2">
+            <div className="flex items-center gap-2 rounded-lg bg-green-100 p-3 text-green-800">
                 <span>✅</span>
                 <span>Browser notifications enabled</span>
             </div>
@@ -58,14 +54,12 @@ export default function NotificationButton() {
 
     if (permission === 'denied') {
         return (
-            <div className="p-3 bg-red-100 text-red-800 rounded-lg">
-                <div className="flex items-center gap-2 mb-2">
+            <div className="rounded-lg bg-red-100 p-3 text-red-800">
+                <div className="mb-2 flex items-center gap-2">
                     <span>🚫</span>
                     <span>Notifications are blocked</span>
                 </div>
-                <p className="text-sm">
-                    To enable: Click the lock icon 🔒 in your address bar → Allow notifications → Refresh page
-                </p>
+                <p className="text-sm">To enable: Click the lock icon 🔒 in your address bar → Allow notifications → Refresh page</p>
             </div>
         );
     }
@@ -74,13 +68,11 @@ export default function NotificationButton() {
         <button
             onClick={enableNotifications}
             disabled={isRequesting}
-            className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-blue-300 flex items-center gap-2"
+            className="flex items-center gap-2 rounded-lg bg-blue-500 px-4 py-2 text-white hover:bg-blue-600 disabled:bg-blue-300"
         >
             <span>🔔</span>
             <span>{isRequesting ? 'Requesting...' : 'Enable Browser Notifications'}</span>
-            {isRequesting && (
-                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full"></div>
-            )}
+            {isRequesting && <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>}
         </button>
     );
 }

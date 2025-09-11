@@ -10,30 +10,41 @@ class RiverLevel extends Model
 {
     use HasFactory;
 
+    public $incrementing = false;
+
+    protected $keyType = 'string';
+
     protected $fillable = [
-        'river_name',
+        'id',
+        'name',
+        'country',
+        'continent',
+        'length',
+        'current_water_level',
+        'normal_water_level',
+        'status',
+        'current_flow_rate',
+        'average_flow_rate',
+        'temperature',
         'lat',
         'lng',
-        'level',
-        'threshold',
+        'description',
+        'last_updated',
+        'weekly_data',
     ];
 
-    /* protected static function booted() */
-    /* { */
-    /*     static::saved(function ($river) { */
-    /*         if ($river->level > $river->threshold) { */
-    /*             event(new \App\Events\RiverLevelExceeded($river)); */
-    /*         } */
-    /*     }); */
-    /* } */
+    protected $casts = [
+        'weekly_data' => 'array',
+        'last_updated' => 'datetime',
+    ];
 
-protected static function booted()
+    protected static function booted()
     {
         static::saved(function ($river) {
             // ✅ Add some debugging
-            Log::info("River saved: {$river->river_name}, Level: {$river->level}, Threshold: {$river->threshold}");
+            Log::info("River saved: {$river->name}, Level: {$river->current_water_level}, Threshold: {$river->normal_water_level}");
 
-            if ($river->level > $river->threshold) {
+            if ($river->current_water_level > $river->normal_water_level) {
                 Log::info("🚨 River level exceeded! Broadcasting event...");
 
                 // ✅ Use broadcast() helper instead of event()
@@ -45,3 +56,4 @@ protected static function booted()
         });
     }
 }
+
