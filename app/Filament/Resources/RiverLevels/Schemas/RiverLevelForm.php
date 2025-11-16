@@ -13,8 +13,6 @@ class RiverLevelForm
     {
         return $schema
             ->components([
-                TextInput::make('id')
-                    ->required(),
                 TextInput::make('name')
                     ->required(),
                 TextInput::make('country')

@@ -42,17 +42,17 @@ class RiverLevelExceeded implements ShouldBroadcast
         return 'river.level.exceeded';
     }
 
-public function broadcastWith()
+ public function broadcastWith()
     {
         return [
             'river' => [
                 'id' => $this->river->id,
-                'river_name' => $this->river->river_name,
+                'river_name' => $this->river->name,
                 'lat' => $this->river->lat,
                 'lng' => $this->river->lng,
-                'level' => $this->river->level,
-                'threshold' => $this->river->threshold,
-                'exceeded_by' => $this->river->level - $this->river->threshold,
+                'level' => $this->river->current_water_level,
+                'threshold' => $this->river->normal_water_level,
+                'exceeded_by' => $this->river->current_water_level - $this->river->normal_water_level,
             ],
             'timestamp' => now()->toISOString(),
         ];

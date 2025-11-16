@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\RiverLevel;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\File;
+use Carbon\Carbon;
 
 class RiverLevelSeeder extends Seeder
 {
@@ -13,48 +13,229 @@ class RiverLevelSeeder extends Seeder
      */
     public function run(): void
     {
-        $fileContent = File::get(resource_path('js/data/rivers.ts'));
-
-        // Extract the array from the TypeScript file
-        preg_match('/export const rivers: River\[\] = (?<json>.*?);/s', $fileContent, $matches);
-        $jsonString = $matches['json'];
-
-        // Clean up the string to make it valid JSON
-        $jsonString = preg_replace('/(?<!")(\w+)(?=")?:/', '"$1":', $jsonString);
-        $jsonString = str_replace("'", '"', $jsonString);
-        $jsonString = str_replace("\n", "", $jsonString);
-        $jsonString = str_replace("  ", "", $jsonString);
-        $jsonString = preg_replace("/(,(\s*?))\]/", "]", $jsonString);
-        $jsonString = preg_replace("/(,(\s*?))\}/", "}", $jsonString);
-
-
-        $rivers = json_decode($jsonString, true);
-
-        if (is_null($rivers)) {
-            $this->command->error("Failed to decode JSON from rivers.ts");
-            $this->command->info($jsonString);
-            return;
-        }
+        $rivers = [
+            [
+                'name' => 'Bagmati',
+                'country' => 'Nepal',
+                'continent' => 'Asia',
+                'length' => 900,
+                'current_water_level' => 35.5,
+                'normal_water_level' => 40.0,
+                'status' => 'Normal',
+                'current_flow_rate' => 85.2,
+                'average_flow_rate' => 90.5,
+                'temperature' => 18.5,
+                'lat' => 27.6725,
+                'lng' => 85.4290,
+                'description' => 'The sacred Bagmati River flows through Kathmandu valley, considered holy by Hindus.',
+                'last_updated' => Carbon::now(),
+                'weekly_data' => [
+                    ['day' => 'Mon', 'level' => 34.2, 'flow' => 82.1],
+                    ['day' => 'Tue', 'level' => 35.8, 'flow' => 86.3],
+                    ['day' => 'Wed', 'level' => 33.9, 'flow' => 79.8],
+                    ['day' => 'Thu', 'level' => 36.1, 'flow' => 88.7],
+                    ['day' => 'Fri', 'level' => 35.5, 'flow' => 85.2],
+                    ['day' => 'Sat', 'level' => 34.7, 'flow' => 83.9],
+                    ['day' => 'Sun', 'level' => 35.2, 'flow' => 84.6],
+                ],
+            ],
+            [
+                'name' => 'Bishnumati',
+                'country' => 'Nepal',
+                'continent' => 'Asia',
+                'length' => 20,
+                'current_water_level' => 28.3,
+                'normal_water_level' => 30.0,
+                'status' => 'Normal',
+                'current_flow_rate' => 45.8,
+                'average_flow_rate' => 48.2,
+                'temperature' => 17.8,
+                'lat' => 27.6850,
+                'lng' => 85.3200,
+                'description' => 'Bishnumati River is one of the main rivers in Kathmandu valley, originating from Shivapuri.',
+                'last_updated' => Carbon::now(),
+                'weekly_data' => [
+                    ['day' => 'Mon', 'level' => 27.8, 'flow' => 44.2],
+                    ['day' => 'Tue', 'level' => 28.9, 'flow' => 46.8],
+                    ['day' => 'Wed', 'level' => 27.5, 'flow' => 43.1],
+                    ['day' => 'Thu', 'level' => 29.1, 'flow' => 47.3],
+                    ['day' => 'Fri', 'level' => 28.3, 'flow' => 45.8],
+                    ['day' => 'Sat', 'level' => 28.0, 'flow' => 44.9],
+                    ['day' => 'Sun', 'level' => 28.5, 'flow' => 46.1],
+                ],
+            ],
+            [
+                'name' => 'Manohara',
+                'country' => 'Nepal',
+                'continent' => 'Asia',
+                'length' => 15,
+                'current_water_level' => 25.7,
+                'normal_water_level' => 28.0,
+                'status' => 'Normal',
+                'current_flow_rate' => 38.4,
+                'average_flow_rate' => 41.7,
+                'temperature' => 16.9,
+                'lat' => 27.6500,
+                'lng' => 85.3800,
+                'description' => 'Manohara River flows through the heart of Kathmandu, known for its religious significance.',
+                'last_updated' => Carbon::now(),
+                'weekly_data' => [
+                    ['day' => 'Mon', 'level' => 25.2, 'flow' => 37.1],
+                    ['day' => 'Tue', 'level' => 26.1, 'flow' => 39.3],
+                    ['day' => 'Wed', 'level' => 24.8, 'flow' => 36.5],
+                    ['day' => 'Thu', 'level' => 26.3, 'flow' => 40.2],
+                    ['day' => 'Fri', 'level' => 25.7, 'flow' => 38.4],
+                    ['day' => 'Sat', 'level' => 25.4, 'flow' => 37.8],
+                    ['day' => 'Sun', 'level' => 25.9, 'flow' => 38.9],
+                ],
+            ],
+            [
+                'name' => 'Hanumante',
+                'country' => 'Nepal',
+                'continent' => 'Asia',
+                'length' => 12,
+                'current_water_level' => 22.4,
+                'normal_water_level' => 25.0,
+                'status' => 'Normal',
+                'current_flow_rate' => 32.1,
+                'average_flow_rate' => 35.8,
+                'temperature' => 17.2,
+                'lat' => 27.6200,
+                'lng' => 85.3500,
+                'description' => 'Hanumante River is located in the southern part of Kathmandu valley.',
+                'last_updated' => Carbon::now(),
+                'weekly_data' => [
+                    ['day' => 'Mon', 'level' => 21.8, 'flow' => 30.9],
+                    ['day' => 'Tue', 'level' => 22.9, 'flow' => 33.2],
+                    ['day' => 'Wed', 'level' => 21.5, 'flow' => 30.3],
+                    ['day' => 'Thu', 'level' => 23.1, 'flow' => 34.1],
+                    ['day' => 'Fri', 'level' => 22.4, 'flow' => 32.1],
+                    ['day' => 'Sat', 'level' => 22.1, 'flow' => 31.7],
+                    ['day' => 'Sun', 'level' => 22.6, 'flow' => 32.8],
+                ],
+            ],
+            [
+                'name' => 'Dhobikhola',
+                'country' => 'Nepal',
+                'continent' => 'Asia',
+                'length' => 18,
+                'current_water_level' => 31.2,
+                'normal_water_level' => 35.0,
+                'status' => 'Normal',
+                'current_flow_rate' => 55.7,
+                'average_flow_rate' => 59.3,
+                'temperature' => 18.1,
+                'lat' => 27.7100,
+                'lng' => 85.3100,
+                'description' => 'Dhobikhola River flows through the northern part of Kathmandu valley.',
+                'last_updated' => Carbon::now(),
+                'weekly_data' => [
+                    ['day' => 'Mon', 'level' => 30.5, 'flow' => 53.8],
+                    ['day' => 'Tue', 'level' => 31.8, 'flow' => 57.2],
+                    ['day' => 'Wed', 'level' => 30.1, 'flow' => 52.9],
+                    ['day' => 'Thu', 'level' => 32.1, 'flow' => 58.4],
+                    ['day' => 'Fri', 'level' => 31.2, 'flow' => 55.7],
+                    ['day' => 'Sat', 'level' => 30.9, 'flow' => 54.8],
+                    ['day' => 'Sun', 'level' => 31.5, 'flow' => 56.3],
+                ],
+            ],
+            [
+                'name' => 'Tukucha',
+                'country' => 'Nepal',
+                'continent' => 'Asia',
+                'length' => 14,
+                'current_water_level' => 26.8,
+                'normal_water_level' => 29.0,
+                'status' => 'Normal',
+                'current_flow_rate' => 41.3,
+                'average_flow_rate' => 44.6,
+                'temperature' => 17.5,
+                'lat' => 27.6800,
+                'lng' => 85.2900,
+                'description' => 'Tukucha River is a small river in Kathmandu valley, important for local water supply.',
+                'last_updated' => Carbon::now(),
+                'weekly_data' => [
+                    ['day' => 'Mon', 'level' => 26.2, 'flow' => 39.8],
+                    ['day' => 'Tue', 'level' => 27.3, 'flow' => 42.7],
+                    ['day' => 'Wed', 'level' => 25.9, 'flow' => 39.1],
+                    ['day' => 'Thu', 'level' => 27.5, 'flow' => 43.4],
+                    ['day' => 'Fri', 'level' => 26.8, 'flow' => 41.3],
+                    ['day' => 'Sat', 'level' => 26.5, 'flow' => 40.6],
+                    ['day' => 'Sun', 'level' => 27.0, 'flow' => 41.9],
+                ],
+            ],
+            [
+                'name' => 'Nakkhu',
+                'country' => 'Nepal',
+                'continent' => 'Asia',
+                'length' => 16,
+                'current_water_level' => 24.6,
+                'normal_water_level' => 27.0,
+                'status' => 'Normal',
+                'current_flow_rate' => 36.9,
+                'average_flow_rate' => 39.8,
+                'temperature' => 17.0,
+                'lat' => 27.6600,
+                'lng' => 85.3400,
+                'description' => 'Nakkhu River flows through Lalitpur district in Kathmandu valley.',
+                'last_updated' => Carbon::now(),
+                'weekly_data' => [
+                    ['day' => 'Mon', 'level' => 24.1, 'flow' => 35.7],
+                    ['day' => 'Tue', 'level' => 25.1, 'flow' => 37.8],
+                    ['day' => 'Wed', 'level' => 23.8, 'flow' => 35.1],
+                    ['day' => 'Thu', 'level' => 25.3, 'flow' => 38.4],
+                    ['day' => 'Fri', 'level' => 24.6, 'flow' => 36.9],
+                    ['day' => 'Sat', 'level' => 24.3, 'flow' => 36.2],
+                    ['day' => 'Sun', 'level' => 24.8, 'flow' => 37.5],
+                ],
+            ],
+            [
+                'name' => 'Balkhu',
+                'country' => 'Nepal',
+                'continent' => 'Asia',
+                'length' => 10,
+                'current_water_level' => 29.4,
+                'normal_water_level' => 32.0,
+                'status' => 'Normal',
+                'current_flow_rate' => 48.6,
+                'average_flow_rate' => 52.1,
+                'temperature' => 18.3,
+                'lat' => 27.6900,
+                'lng' => 85.3000,
+                'description' => 'Balkhu River is located in the northern part of Kathmandu, important for irrigation.',
+                'last_updated' => Carbon::now(),
+                'weekly_data' => [
+                    ['day' => 'Mon', 'level' => 28.8, 'flow' => 46.9],
+                    ['day' => 'Tue', 'level' => 29.9, 'flow' => 49.8],
+                    ['day' => 'Wed', 'level' => 28.5, 'flow' => 46.2],
+                    ['day' => 'Thu', 'level' => 30.1, 'flow' => 50.7],
+                    ['day' => 'Fri', 'level' => 29.4, 'flow' => 48.6],
+                    ['day' => 'Sat', 'level' => 29.1, 'flow' => 47.9],
+                    ['day' => 'Sun', 'level' => 29.6, 'flow' => 49.1],
+                ],
+            ],
+        ];
 
         foreach ($rivers as $river) {
             RiverLevel::create([
-                'id' => $river['id'],
                 'name' => $river['name'],
                 'country' => $river['country'],
                 'continent' => $river['continent'],
                 'length' => $river['length'],
-                'current_water_level' => $river['waterLevel']['current'],
-                'normal_water_level' => $river['waterLevel']['normal'],
-                'status' => $river['waterLevel']['status'],
-                'current_flow_rate' => $river['flowRate']['current'],
-                'average_flow_rate' => $river['flowRate']['average'],
+                'current_water_level' => $river['current_water_level'],
+                'normal_water_level' => $river['normal_water_level'],
+                'status' => $river['status'],
+                'current_flow_rate' => $river['current_flow_rate'],
+                'average_flow_rate' => $river['average_flow_rate'],
                 'temperature' => $river['temperature'],
-                'lat' => $river['coordinates']['lat'],
-                'lng' => $river['coordinates']['lng'],
+                'lat' => $river['lat'],
+                'lng' => $river['lng'],
                 'description' => $river['description'],
-                'last_updated' => $river['lastUpdated'],
-                'weekly_data' => json_encode($river['weeklyData']),
+                'last_updated' => $river['last_updated'],
+                'weekly_data' => json_encode($river['weekly_data']),
             ]);
         }
+
+        $this->command->info('Seeded ' . count($rivers) . ' rivers from Kathmandu valley');
     }
 }

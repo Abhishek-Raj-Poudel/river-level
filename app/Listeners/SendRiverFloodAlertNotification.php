@@ -26,10 +26,10 @@ class SendRiverFloodAlertNotification
     {
         $users = User::all();
 
-        /* Notification::send($users, new RiverFloodAlert( */
-        /*     $event->river->river_name, */
-        /*     $event->river->level, */
-        /*     $event->river->threshold */
-        /* )); */
+        Notification::send($users, new RiverFloodAlert(
+            $event->river->name,
+            $event->river->current_water_level,
+            $event->river->normal_water_level
+        ));
     }
 }
