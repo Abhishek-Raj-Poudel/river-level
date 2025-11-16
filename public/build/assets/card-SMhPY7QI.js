@@ -1,6 +1,0 @@
-import{c as s,a as e}from"./createLucideIcon-D9eNovMf.js";import{j as r}from"./app-C7hCMEsi.js";/**
- * @license lucide-react v0.475.0 - ISC
- *
- * This source code is licensed under the ISC license.
- * See the LICENSE file in the root directory of this source tree.
- */const d=[["path",{d:"M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z",key:"1ptgy4"}],["path",{d:"M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 4 6.5s3 3.5 3 5.5a6.98 6.98 0 0 1-11.91 4.97",key:"1sl1rz"}]],n=s("Droplets",d);function l({className:a,...t}){return r.jsx("div",{"data-slot":"card",className:e("bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-neutral-200 py-6 shadow-sm",a),...t})}function i({className:a,...t}){return r.jsx("div",{"data-slot":"card-header",className:e("flex flex-col gap-1.5 px-6",a),...t})}function x({className:a,...t}){return r.jsx("div",{"data-slot":"card-title",className:e("leading-none font-semibold",a),...t})}function u({className:a,...t}){return r.jsx("div",{"data-slot":"card-description",className:e("text-muted-foreground text-sm",a),...t})}function p({className:a,...t}){return r.jsx("div",{"data-slot":"card-content",className:e("px-6",a),...t})}export{l as C,n as D,i as a,x as b,u as c,p as d};
