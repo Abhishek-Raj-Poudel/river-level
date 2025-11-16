@@ -1,40 +1,37 @@
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 // import { Badge } from "@/components/ui/badge";
-import { Button } from '@/components/ui/button';
 
-import { Filter, Search, Waves } from 'lucide-react';
-import { RiverCard } from './river-card';
 import { River, RiverNew } from '@/types';
+import { Search, Waves } from 'lucide-react';
+import { RiverCard } from './river-card';
 
 interface RiversListProps {
-    onRiverSelect: (river: River) => void;
     rivers: River[];
     rivers_new: RiverNew[];
 }
 
-export const RiversList = ({ onRiverSelect, rivers, rivers_new }: RiversListProps) => {
-    console.log("river new", rivers_new)
+export const RiversList = ({ rivers, rivers_new }: RiversListProps) => {
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState<string | null>(null);
+    // const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
-    const filteredRivers = rivers.filter((river) => {
+    const filteredRiversNew = rivers_new.filter((river) => {
         const matchesSearch =
-            river.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            river.country.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            river.continent.toLowerCase().includes(searchTerm.toLowerCase());
+            river.station_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            river.basin.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            river.district.toLowerCase().includes(searchTerm.toLowerCase());
 
-        const matchesStatus = !statusFilter || river.water_level_status === statusFilter;
+        // const matchesStatus = !statusFilter || river.water_level_status === statusFilter;
 
-        return matchesSearch && matchesStatus;
+        return matchesSearch; // && matchesStatus;
     });
 
-    const statusCounts = {
-        low: rivers.filter((r) => r.water_level_status === 'low').length,
-        normal: rivers.filter((r) => r.water_level_status === 'normal').length,
-        high: rivers.filter((r) => r.water_level_status === 'high').length,
-        critical: rivers.filter((r) => r.water_level_status === 'critical').length,
-    };
+    // const statusCounts = {
+    //     low: rivers.filter((r) => r.water_level_status === 'low').length,
+    //     normal: rivers.filter((r) => r.water_level_status === 'normal').length,
+    //     high: rivers.filter((r) => r.water_level_status === 'high').length,
+    //     critical: rivers.filter((r) => r.water_level_status === 'critical').length,
+    // };
 
     return (
         <div className="bg-gradient-background min-h-screen">
@@ -64,74 +61,76 @@ export const RiversList = ({ onRiverSelect, rivers, rivers_new }: RiversListProp
                         />
                     </div>
 
-                    <div className="flex flex-wrap items-center justify-center gap-2">
-                        <div className="mr-4 flex items-center gap-1">
-                            <Filter className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm text-muted-foreground">Filter by status:</span>
-                        </div>
+                    {/*
+                     <div className="flex flex-wrap items-center justify-center gap-2">
+                         <div className="mr-4 flex items-center gap-1">
+                             <Filter className="h-4 w-4 text-muted-foreground" />
+                             <span className="text-sm text-muted-foreground">Filter by status:</span>
+                         </div>
 
-                        <Button variant={statusFilter === null ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter(null)} className="">
-                            All ({rivers.length})
-                        </Button>
+                         <Button variant={statusFilter === null ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter(null)} className="">
+                             All ({rivers.length})
+                         </Button>
 
-                        <Button
-                            variant={statusFilter === 'normal' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setStatusFilter(statusFilter === 'normal' ? null : 'normal')}
-                            className="h-8 bg-white"
-                        >
-                            <div className="mr-2 h-2 w-2 rounded-full bg-water-normal" />
-                            Normal ({statusCounts.normal})
-                        </Button>
+                         <Button
+                             variant={statusFilter === 'normal' ? 'default' : 'outline'}
+                             size="sm"
+                             onClick={() => setStatusFilter(statusFilter === 'normal' ? null : 'normal')}
+                             className="h-8 bg-white"
+                         >
+                             <div className="mr-2 h-2 w-2 rounded-full bg-water-normal" />
+                             Normal ({statusCounts.normal})
+                         </Button>
 
-                        <Button
-                            variant={statusFilter === 'low' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setStatusFilter(statusFilter === 'low' ? null : 'low')}
-                            className="h-8 bg-white"
-                        >
-                            <div className="mr-2 h-2 w-2 rounded-full bg-water-low" />
-                            Low ({statusCounts.low})
-                        </Button>
+                         <Button
+                             variant={statusFilter === 'low' ? 'default' : 'outline'}
+                             size="sm"
+                             onClick={() => setStatusFilter(statusFilter === 'low' ? null : 'low')}
+                             className="h-8 bg-white"
+                         >
+                             <div className="mr-2 h-2 w-2 rounded-full bg-water-low" />
+                             Low ({statusCounts.low})
+                         </Button>
 
-                        <Button
-                            variant={statusFilter === 'high' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setStatusFilter(statusFilter === 'high' ? null : 'high')}
-                            className="h-8 bg-white"
-                        >
-                            <div className="mr-2 h-2 w-2 rounded-full bg-water-high" />
-                            High ({statusCounts.high})
-                        </Button>
+                         <Button
+                             variant={statusFilter === 'high' ? 'default' : 'outline'}
+                             size="sm"
+                             onClick={() => setStatusFilter(statusFilter === 'high' ? null : 'high')}
+                             className="h-8 bg-white"
+                         >
+                             <div className="mr-2 h-2 w-2 rounded-full bg-water-high" />
+                             High ({statusCounts.high})
+                         </Button>
 
-                        <Button
-                            variant={statusFilter === 'critical' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setStatusFilter(statusFilter === 'critical' ? null : 'critical')}
-                            className="h-8 bg-white"
-                        >
-                            <div className="mr-2 h-2 w-2 rounded-full bg-water-critical" />
-                            Critical ({statusCounts.critical})
-                        </Button>
-                    </div>
+                         <Button
+                             variant={statusFilter === 'critical' ? 'default' : 'outline'}
+                             size="sm"
+                             onClick={() => setStatusFilter(statusFilter === 'critical' ? null : 'critical')}
+                             className="h-8 bg-white"
+                         >
+                             <div className="mr-2 h-2 w-2 rounded-full bg-water-critical" />
+                             Critical ({statusCounts.critical})
+                         </Button>
+                     </div>
+                     */}
                 </div>
 
                 {/* Results count */}
                 <div className="mb-6 text-center">
                     <p className="text-muted-foreground">
-                        Showing {filteredRivers.length} of {rivers.length} rivers
+                        Showing {filteredRiversNew.length} of {rivers_new.length} rivers
                     </p>
                 </div>
 
                 {/* Rivers Grid */}
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {rivers_new.map((river) => (
+                    {filteredRiversNew.map((river) => (
                         <RiverCard key={river.index} river_new={river} />
                     ))}
                 </div>
 
                 {/* No results */}
-                {filteredRivers.length === 0 && (
+                {filteredRiversNew.length === 0 && (
                     <div className="py-12 text-center">
                         <div className="mb-4 inline-block rounded-xl bg-muted/20 p-4">
                             <Search className="h-8 w-8 text-muted-foreground" />

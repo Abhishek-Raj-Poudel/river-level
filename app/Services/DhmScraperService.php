@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Log;
 
 class DhmScraperService
 {
-    /* protected string $url = 'https://dhm.gov.np/hydrology/realtime-stream'; */
-    protected string $url = 'https://hydrology.gov.np/#/river_watch?_k=pprrmt';
+    protected string $url = 'https://dhm.gov.np/hydrology/realtime-stream';
+    /* protected string $url = 'https://hydrology.gov.np/#/river_watch?_k=pprrmt'; */
 
     public function fetch()
     {
@@ -24,7 +24,7 @@ class DhmScraperService
             $crawler = new Crawler($html);
             $rows = [];
 
-            $crawler->filter('table.watch_table tr')->each(function (Crawler $tr, $i) use (&$rows) {
+            $crawler->filter('table#tablegeneral tr')->each(function (Crawler $tr, $i) use (&$rows) {
                 $tds = $tr->filter('td');
                 if ($tds->count() >= 7) {
                     $rows[] = [
