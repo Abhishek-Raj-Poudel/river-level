@@ -1,6 +1,6 @@
-import { Badge } from '@/components/ui/badge';
+// import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { getStatusColor, getStatusText } from '@/data/rivers';
+// import { getStatusColor, getStatusText } from '@/data/rivers';
 import { River, RiverNew } from '@/types';
 import { Link } from '@inertiajs/react';
 import { ArrowRight, Droplets, Thermometer, TrendingUp } from 'lucide-react';
@@ -17,7 +17,7 @@ export const RiverCard = ({ river_new }: RiverCardProps) => {
         <>
             {/* <Link href={`/river/${river.uid}`}> */}
             <Link href={`/`}>
-                <Card className="group bg-gradient-card relative cursor-pointer overflow-hidden border-border/20 transition-all duration-300 hover:scale-[1.02] hover:border-primary/30 hover:shadow-glow">
+                <Card className="group bg-gradient-card relative cursor-pointer overflow-hidden border-border transition-all duration-300 hover:scale-[1.02] hover:border-primary/30 hover:shadow-glow">
                     {/* Background gradient overlay */}
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
