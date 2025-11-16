@@ -3,18 +3,20 @@
 namespace App\Http\Controllers;
 
 use App\Models\River;
-use App\Models\RiverLevel;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Services\DhmScraperService;
 
 class RiverController extends Controller
 {
-    public function index()
+    public function index(DhmScraperService $scraper)
     {
         $rivers = River::all();
+        /* $rivers = Cache::remember('dhm_rivers', 300, fn() => $scraper->fetch()); */
+        $riversNew = $scraper->fetch(); // scrape live data instead of DB
 
         return Inertia::render('welcome', [
             'rivers' => $rivers,
+            'rivers_new' => $riversNew
         ]);
     }
 

@@ -43,3 +43,46 @@ export interface User {
     [key: string]: unknown; // This allows for additional properties...
 }
 
+
+interface River {
+    uid: string;
+    id: string;
+    name: string;
+    country: string;
+    continent: string;
+    length: number; // in kilometers
+    water_level_current: number;
+    water_level_normal: number;
+    water_level_status: 'low' | 'normal' | 'high' | 'critical';
+    flow_rate_current: number;
+    flow_rate_average: number;
+
+    temperature: number; // in Celsius
+    lat: number;
+    lng: number;
+
+    description: string;
+    last_updated: string;
+    weeklyData: Array<{
+        day: string;
+        level: number;
+        flow: number;
+    }>;
+
+    basin: string;
+    discharge: string;
+    station_index: string;
+    station_name: string;
+    water_level: string;
+}
+
+
+interface RiverNew {
+    index: string
+    basin: string;
+    discharge: string;
+    district: string;
+    station_index: string;
+    station_name: string;
+    water_level: string;
+}

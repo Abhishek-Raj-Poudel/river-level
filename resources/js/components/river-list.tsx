@@ -2,16 +2,19 @@ import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 // import { Badge } from "@/components/ui/badge";
 import { Button } from '@/components/ui/button';
-import { River } from '@/data/rivers';
+
 import { Filter, Search, Waves } from 'lucide-react';
 import { RiverCard } from './river-card';
+import { River, RiverNew } from '@/types';
 
 interface RiversListProps {
     onRiverSelect: (river: River) => void;
     rivers: River[];
+    rivers_new: RiverNew[];
 }
 
-export const RiversList = ({ onRiverSelect, rivers }: RiversListProps) => {
+export const RiversList = ({ onRiverSelect, rivers, rivers_new }: RiversListProps) => {
+    console.log("river new", rivers_new)
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
@@ -54,7 +57,7 @@ export const RiversList = ({ onRiverSelect, rivers }: RiversListProps) => {
                     <div className="relative mx-auto max-w-md">
                         <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
                         <Input
-                            placeholder="Search rivers, countries, or continents..."
+                            placeholder="Search rivers"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                             className="border-border/50 pl-10 focus:border-primary"
@@ -122,8 +125,8 @@ export const RiversList = ({ onRiverSelect, rivers }: RiversListProps) => {
 
                 {/* Rivers Grid */}
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {filteredRivers.map((river) => (
-                        <RiverCard key={river.id} river={river} onClick={() => onRiverSelect(river)} />
+                    {rivers_new.map((river) => (
+                        <RiverCard key={river.index} river_new={river} />
                     ))}
                 </div>
 
