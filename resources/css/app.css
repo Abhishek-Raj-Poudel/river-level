@@ -7,159 +7,163 @@
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 
-@theme {
-    /* Base colors - River themed dark design */
-    --color-background: oklch(0.15 0.02 250);
-    --color-foreground: oklch(44.3% 0.11 240.79);
-
-    /* Card system */
-    --color-card: oklch(0.18 0.025 250);
-    --color-card-foreground: oklch(0.92 0.04 200);
-
-    /* Popover */
-    --color-popover: oklch(0.18 0.025 250);
-    --color-popover-foreground: oklch(0.92 0.04 200);
-
-    /* Primary - Water blue */
-    --color-primary: oklch(0.6 0.2 220);
-    --color-primary-foreground: oklch(0.15 0.02 250);
-    --color-primary-glow: oklch(0.7 0.22 220);
-
-    /* Secondary - Deep water */
-    --color-secondary: oklch(0.25 0.04 230);
-    --color-secondary-foreground: oklch(0.92 0.04 200);
-
-    /* Muted tones */
-    --color-muted: oklch(0.22 0.035 240);
-    --color-muted-foreground: oklch(0.65 0.025 200);
-
-    /* Accent - Cyan highlights */
-    --color-accent: oklch(0.65 0.25 190);
-    --color-accent-foreground: oklch(0.15 0.02 250);
-
-    /* Destructive - Warning red */
-    --color-destructive: oklch(0.62 0.25 25);
-    --color-destructive-foreground: oklch(0.92 0.04 200);
-
-    /* Success - Safe green */
-    --color-success: oklch(0.6 0.18 140);
-    --color-success-foreground: oklch(0.15 0.02 250);
-
-    /* Warning - Caution orange */
-    --color-warning: oklch(0.75 0.22 50);
-    --color-warning-foreground: oklch(0.15 0.02 250);
-
-    /* Borders and inputs */
-    --color-border: oklch(0.28 0.035 240);
-    --color-input: oklch(0.25 0.04 230);
-    --color-ring: oklch(0.6 0.2 220);
-
-    /* River-specific colors */
-    --color-water-low: oklch(86.9% 0.022 252.894);
-    --color-water-normal: oklch(0.6 0.18 140);
-    --color-water-high: oklch(0.75 0.22 50);
-    --color-water-critical: oklch(0.62 0.25 25);
-
-    /* Sidebar colors */
-    --color-sidebar-background: oklch(0.17 0.025 250);
-    --color-sidebar-foreground: oklch(0.85 0.04 200);
-    --color-sidebar-primary: oklch(0.6 0.2 220);
-    --color-sidebar-primary-foreground: oklch(0.15 0.02 250);
-    --color-sidebar-accent: oklch(0.22 0.035 240);
-    --color-sidebar-accent-foreground: oklch(0.85 0.04 200);
-    --color-sidebar-border: oklch(0.28 0.035 240);
-    --color-sidebar-ring: oklch(0.6 0.2 220);
-
-    /* Border radius */
-    --radius: 0.75rem;
-    --radius-sm: 0.375rem;
-    --radius-md: 0.5rem;
-    --radius-lg: 0.75rem;
-    --radius-xl: 1rem;
-
-    /* Shadows */
-    --shadow-card: 0 8px 32px oklch(0.08 0.02 250 / 0.5);
-    --shadow-glow: 0 0 40px oklch(0.6 0.2 220 / 0.3);
-
-    /* Animations & Transitions */
-    --animate-duration-smooth: 0.3s;
-    --animate-duration-bounce: 0.5s;
-    --animate-timing-smooth: cubic-bezier(0.4, 0, 0.2, 1);
-    --animate-timing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
-
-    /* Gradients - defined as utility classes since Tailwind v4 handles these differently */
+:root {
+  --background: #f9f9f9;
+  --foreground: #202020;
+  --card: #fcfcfc;
+  --card-foreground: #202020;
+  --popover: #fcfcfc;
+  --popover-foreground: #202020;
+  --primary: #644a40;
+  --primary-foreground: #ffffff;
+  --secondary: #ffdfb5;
+  --secondary-foreground: #582d1d;
+  --muted: #efefef;
+  --muted-foreground: #646464;
+  --accent: #e8e8e8;
+  --accent-foreground: #202020;
+  --destructive: #e54d2e;
+  --destructive-foreground: #ffffff;
+  --border: #d8d8d8;
+  --input: #d8d8d8;
+  --ring: #644a40;
+  --chart-1: #644a40;
+  --chart-2: #ffdfb5;
+  --chart-3: #e8e8e8;
+  --chart-4: #ffe6c4;
+  --chart-5: #66493e;
+  --sidebar: #fbfbfb;
+  --sidebar-foreground: #252525;
+  --sidebar-primary: #343434;
+  --sidebar-primary-foreground: #fbfbfb;
+  --sidebar-accent: #f7f7f7;
+  --sidebar-accent-foreground: #343434;
+  --sidebar-border: #ebebeb;
+  --sidebar-ring: #b5b5b5;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --radius: 1.25rem;
+  --shadow-x: 0;
+  --shadow-y: 1px;
+  --shadow-blur: 3px;
+  --shadow-spread: 0px;
+  --shadow-opacity: 0;
+  --shadow-color: oklch(0 0 0);
+  --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.00);
+  --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.00);
+  --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.00), 0 1px 2px -1px hsl(0 0% 0% / 0.00);
+  --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.00), 0 1px 2px -1px hsl(0 0% 0% / 0.00);
+  --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.00), 0 2px 4px -1px hsl(0 0% 0% / 0.00);
+  --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.00), 0 4px 6px -1px hsl(0 0% 0% / 0.00);
+  --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.00), 0 8px 10px -1px hsl(0 0% 0% / 0.00);
+  --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.00);
+  --tracking-normal: 0em;
+  --spacing: 0.25rem;
 }
 
 .dark {
-    /* Dark mode inherits the same values for consistency */
-    --background: oklch(0.15 0.02 250);
-    --foreground: oklch(0.92 0.04 200);
-    --card: oklch(0.18 0.025 250);
-    --card-foreground: oklch(0.92 0.04 200);
-    --popover: oklch(0.18 0.025 250);
-    --popover-foreground: oklch(0.92 0.04 200);
-    --primary: oklch(0.6 0.2 220);
-    --primary-foreground: oklch(0.15 0.02 250);
-    --secondary: oklch(0.25 0.04 230);
-    --secondary-foreground: oklch(0.92 0.04 200);
-    --muted: oklch(0.22 0.035 240);
-    --muted-foreground: oklch(0.65 0.025 200);
-    --accent: oklch(0.65 0.25 190);
-    --accent-foreground: oklch(0.15 0.02 250);
-    --destructive: oklch(0.62 0.25 25);
-    --destructive-foreground: oklch(0.92 0.04 200);
-    --border: oklch(0.28 0.035 240);
-    --input: oklch(0.25 0.04 230);
-    --ring: oklch(0.6 0.2 220);
-    --sidebar-background: oklch(0.17 0.025 250);
-    --sidebar-foreground: oklch(0.85 0.04 200);
-    --sidebar-primary: oklch(0.6 0.2 220);
-    --sidebar-primary-foreground: oklch(0.15 0.02 250);
-    --sidebar-accent: oklch(0.22 0.035 240);
-    --sidebar-accent-foreground: oklch(0.85 0.04 200);
-    --sidebar-border: oklch(0.28 0.035 240);
-    --sidebar-ring: oklch(0.6 0.2 220);
+  --background: #111111;
+  --foreground: #eeeeee;
+  --card: #191919;
+  --card-foreground: #eeeeee;
+  --popover: #191919;
+  --popover-foreground: #eeeeee;
+  --primary: #ffe0c2;
+  --primary-foreground: #081a1b;
+  --secondary: #393028;
+  --secondary-foreground: #ffe0c2;
+  --muted: #222222;
+  --muted-foreground: #b4b4b4;
+  --accent: #2a2a2a;
+  --accent-foreground: #eeeeee;
+  --destructive: #e54d2e;
+  --destructive-foreground: #ffffff;
+  --border: #201e18;
+  --input: #484848;
+  --ring: #ffe0c2;
+  --chart-1: #ffe0c2;
+  --chart-2: #393028;
+  --chart-3: #2a2a2a;
+  --chart-4: #42382e;
+  --chart-5: #ffe0c1;
+  --sidebar: #18181b;
+  --sidebar-foreground: #f4f4f5;
+  --sidebar-primary: #1d4ed8;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #27272a;
+  --sidebar-accent-foreground: #f4f4f5;
+  --sidebar-border: #27272a;
+  --sidebar-ring: #d4d4d8;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --radius: 1.25rem;
+  --shadow-x: 0;
+  --shadow-y: 1px;
+  --shadow-blur: 3px;
+  --shadow-spread: 0px;
+  --shadow-opacity: 0;
+  --shadow-color: oklch(0 0 0);
+  --shadow-2xs: 0 1px 3px 0px hsl(0 0% 0% / 0.00);
+  --shadow-xs: 0 1px 3px 0px hsl(0 0% 0% / 0.00);
+  --shadow-sm: 0 1px 3px 0px hsl(0 0% 0% / 0.00), 0 1px 2px -1px hsl(0 0% 0% / 0.00);
+  --shadow: 0 1px 3px 0px hsl(0 0% 0% / 0.00), 0 1px 2px -1px hsl(0 0% 0% / 0.00);
+  --shadow-md: 0 1px 3px 0px hsl(0 0% 0% / 0.00), 0 2px 4px -1px hsl(0 0% 0% / 0.00);
+  --shadow-lg: 0 1px 3px 0px hsl(0 0% 0% / 0.00), 0 4px 6px -1px hsl(0 0% 0% / 0.00);
+  --shadow-xl: 0 1px 3px 0px hsl(0 0% 0% / 0.00), 0 8px 10px -1px hsl(0 0% 0% / 0.00);
+  --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.00);
 }
 
-/* Custom gradient utilities */
-.gradient-primary {
-    background: var(--gradient-primary);
-}
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 
-.gradient-water {
-    background: var(--gradient-water);
-}
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
 
-.gradient-card {
-    background: var(--gradient-card);
-}
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 
-.gradient-background {
-    background: var(--gradient-background);
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
 }
-
-/* Transition utilities */
-.transition-smooth {
-    transition: all var(--animate-duration-smooth) var(--animate-timing-smooth);
-}
-
-.transition-bounce {
-    transition: all var(--animate-duration-bounce) var(--animate-timing-bounce);
-}
-
-/* Shadow utilities */
-.shadow-card {
-    box-shadow: var(--shadow-card);
-}
-
-.shadow-glow {
-    box-shadow: var(--shadow-glow);
-}
-
-/* Usage examples for the color system:
-bg-primary, text-primary-foreground
-bg-card, text-card-foreground
-border-border, ring-ring
-bg-water-low, bg-water-normal, bg-water-high, bg-water-critical
-bg-sidebar-background, text-sidebar-foreground
-*/

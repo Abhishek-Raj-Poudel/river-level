@@ -6,6 +6,10 @@ import { SharedData, type BreadcrumbItem } from '@/types';
 import { Head, usePage } from '@inertiajs/react';
 import { useEffect, useState } from 'react';
 import LocationForm from './location-form';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { MapPin, Droplets, AlertTriangle, CheckCircle2 } from 'lucide-react';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -33,7 +37,6 @@ export default function Dashboard() {
     const { auth } = usePage<SharedData>().props;
 
     const [event, setEvent] = useState<string | null>(null);
-
     const [connectionStatus, setConnectionStatus] = useState<string>('Connecting...');
     const [debugInfo, setDebugInfo] = useState<string[]>([]);
 
@@ -46,18 +49,14 @@ export default function Dashboard() {
     useEffect(() => {
         addDebugInfo('🔌 Setting up river level listener...');
 
-        // Check if Echo is properly initialized
         if (!echo) {
             addDebugInfo('❌ Echo instance not found!');
             return;
         }
 
-        // addDebugInfo(`📡 Echo instance found: ${echo.connector?.name || 'unknown connector'}`);
-
         try {
             const channel = echo.channel('river-levels');
 
-            // Your main event listener
             channel.listen('river.level.exceeded', (e: RiverLevelEvent) => {
                 addDebugInfo(`⚠️ River exceeded: ${e.river?.river_name || 'Unknown river'}`);
                 setEvent(`Water level ${e.river.river_name} exceeds threshold of ${e.river.threshold}m`);
@@ -70,12 +69,10 @@ export default function Dashboard() {
                 }
             });
 
-            // Also try listening without the dot prefix (in case that's the issue)
             channel.listen('.river.level.exceeded', (e: RiverLevelEvent) => {
                 addDebugInfo(`⚠️ River exceeded (with dot): ${e.river?.river_name || 'Unknown river'}`);
             });
 
-            // And try the default Laravel event name format
             channel.listen('RiverLevelExceeded', (e: RiverLevelEvent) => {
                 addDebugInfo(`⚠️ River exceeded (default name): ${e.river?.river_name || 'Unknown river'}`);
             });
@@ -96,42 +93,100 @@ export default function Dashboard() {
         };
     }, []);
 
-    const testConnection = () => {
-        addDebugInfo('🧪 Testing connection...');
-
-        // Check if we can access the channel
-        const channel = echo.channel('river-levels');
-        addDebugInfo(`Channel state: ${channel ? 'exists' : 'null'}`);
-
-        // Try to get connection info
-        // if (echo.connector?.pusher) {
-        //     const connectionState = echo.connector.pusher.connection.state;
-        //     addDebugInfo(`Pusher connection state: ${connectionState}`);
-        // }
-    };
-
     return (
         <AppLayout breadcrumbs={breadcrumbs}>
             <Head title="Dashboard" />
 
-            <div className="p-6">
-                <div className="mb-4 rounded-xl bg-gray-100 p-4 text-red-800 shadow">
-                    <h3 className="font-bold">Flood Alert 🚨</h3>
-                    <p>{event}</p>
+            <div className=" container mx-auto w-11/12 space-y-6 p-6">
+                {/* Welcome Section */}
+                <div>
+                    <h1 className="text-3xl font-bold tracking-tight">Welcome back, {auth.user.name || 'user'}</h1>
+                    <p className="text-muted-foreground mt-2">Monitor river levels and manage your flood alerts</p>
                 </div>
-            </div>
 
-            <div className="p-6">
-                <h1 className="mb-4 text-xl font-bold">Welcome, user </h1>
-                <p>
-                    📍 Your location: {auth.user.lat}, {auth.user.lng}
-                </p>
-            </div>
-            <div className="p-6">
-                <NotificationButton />
-            </div>
+                {/* Alert Section */}
+                {event && (
+                    <Alert variant="destructive" className="border-red-600 bg-red-50">
+                        <AlertTriangle className="h-5 w-5" />
+                        <AlertTitle className="text-lg font-semibold">Flood Alert</AlertTitle>
+                        <AlertDescription className="mt-2 text-base">
+                            {event}
+                        </AlertDescription>
+                    </Alert>
+                )}
 
-            <LocationForm user={auth.user} />
+                {/* Main Content Grid */}
+                <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    {/* Location Card */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <MapPin className="h-5 w-5 text-blue-600" />
+                                Your Location
+                            </CardTitle>
+                            <CardDescription>Current monitoring position</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="space-y-2">
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-muted-foreground">Latitude:</span>
+                                    <span className="font-mono text-sm font-medium">{auth.user.lat || 'Not set'}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-sm text-muted-foreground">Longitude:</span>
+                                    <span className="font-mono text-sm font-medium">{auth.user.lng || 'Not set'}</span>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
+                    {/* Notification Status Card */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <Droplets className="h-5 w-5 text-blue-600" />
+                                Notifications
+                            </CardTitle>
+                            <CardDescription>Alert preferences</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <NotificationButton />
+                        </CardContent>
+                    </Card>
+
+                    {/* System Status Card */}
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2">
+                                <CheckCircle2 className="h-5 w-5 text-green-600" />
+                                System Status
+                            </CardTitle>
+                            <CardDescription>Monitoring service</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-300">
+                                    Active
+                                </Badge>
+                                <span className="text-sm text-muted-foreground">All systems operational</span>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+
+                {/* Location Form Section */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Update Location</CardTitle>
+                        <CardDescription>
+                            Set your location to receive relevant flood alerts
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <LocationForm user={auth.user} />
+                    </CardContent>
+                </Card>
+            </div>
         </AppLayout>
     );
 }

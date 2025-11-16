@@ -1,6 +1,9 @@
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { useForm } from '@inertiajs/react';
 import { FormEvent } from 'react';
+import { MapPin, Navigation, Loader2 } from 'lucide-react';
 
 interface User {
     id: number;
@@ -43,35 +46,74 @@ export default function LocationForm({ user }: LocationFormProps) {
     };
 
     return (
-        <div className="max-w-md rounded-xl p-6 shadow">
-            <h2 className="mb-4 text-lg font-semibold">Set Your Location</h2>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="flex w-full gap-2">
-                    <input
-                        type="text"
-                        value={data.lat}
-                        onChange={(e) => setData('lat', e.target.value)}
-                        placeholder="Latitude"
-                        className="w-full rounded border p-2"
-                    />
-                    <input
-                        type="text"
-                        value={data.lng}
-                        onChange={(e) => setData('lng', e.target.value)}
-                        placeholder="Longitude"
-                        className="w-full rounded border p-2"
-                    />
+        <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid gap-6 sm:grid-cols-2">
+                {/* Latitude Input */}
+                <div className="space-y-2">
+                    <Label htmlFor="latitude" className="text-sm font-medium">
+                        Latitude
+                    </Label>
+                    <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                            id="latitude"
+                            type="text"
+                            value={data.lat}
+                            onChange={(e) => setData('lat', e.target.value)}
+                            placeholder="27.7172"
+                            className="pl-10"
+                        />
+                    </div>
                 </div>
 
-                <Button type="button" onClick={handleUseMyLocation} className="w-full">
+                {/* Longitude Input */}
+                <div className="space-y-2">
+                    <Label htmlFor="longitude" className="text-sm font-medium">
+                        Longitude
+                    </Label>
+                    <div className="relative">
+                        <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                            id="longitude"
+                            type="text"
+                            value={data.lng}
+                            onChange={(e) => setData('lng', e.target.value)}
+                            placeholder="85.3240"
+                            className="pl-10"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col gap-3 sm:flex-row">
+                <Button
+                    type="button"
+                    onClick={handleUseMyLocation}
+                    variant="outline"
+                    className="w-full sm:w-auto"
+                >
+                    <Navigation className="mr-2 h-4 w-4" />
                     Use My Location
                 </Button>
-
-                <Button type="submit" disabled={processing} variant="secondary" className="w-full">
-                    Save Location
+                <Button
+                    type="submit"
+                    disabled={processing}
+                    className="w-full sm:flex-1"
+                >
+                    {processing ? (
+                        <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Saving...
+                        </>
+                    ) : (
+                        <>
+                            <MapPin className="mr-2 h-4 w-4" />
+                            Save Location
+                        </>
+                    )}
                 </Button>
-            </form>
-        </div>
+            </div>
+        </form>
     );
 }

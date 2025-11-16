@@ -28,7 +28,7 @@ export default echo;
 //@ts-ignore
 window.Echo = echo;
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const appName = import.meta.env.VITE_APP_NAME || 'River Watch';
 
 createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),

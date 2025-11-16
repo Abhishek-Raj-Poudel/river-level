@@ -16,7 +16,7 @@ class DhmScraperService
         try {
             Log::info('Fetching DHM river data...');
 
-            $client = new Client(['timeout' => 15, 'headers' => ['User-Agent' => 'LaravelScraper']]);
+            $client = new Client(['timeout' => 15, 'headers' => ['User-Agent' => 'RiverWatchScraper']]);
             $res = $client->get($this->url);
             $html = (string) $res->getBody();
             Log::info($html);
