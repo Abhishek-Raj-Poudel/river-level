@@ -45,7 +45,9 @@ export interface User {
 
 interface River {
     id: string;
+    slug: string;
     name: string;
+    station_name?: string;
     country: string;
     continent: string;
     length: number; // in kilometers

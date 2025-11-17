@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', [RiverController::class, 'index'])->name('home');
-Route::get('/river/{river:uid}', [RiverController::class, 'show'])->name('river.show');
+Route::get('/river/{river}', [RiverController::class, 'show'])->name('river.show');
 
 Route::middleware(['auth', 'verified'])->group(function () {
 

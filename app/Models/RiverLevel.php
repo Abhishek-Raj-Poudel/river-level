@@ -19,7 +19,9 @@ class RiverLevel extends Model
 
     protected $fillable = [
         'id',
+        'slug',
         'name',
+        'station_name',
         'country',
         'continent',
         'length',
@@ -41,12 +43,22 @@ class RiverLevel extends Model
         'last_updated' => 'datetime',
     ];
 
+    public function getRouteKeyName()
+    {
+        return 'slug';
+    }
+
     protected static function booted()
     {
         static::creating(function ($river) {
             // Auto-generate UUID for id if not provided
             if (empty($river->id)) {
                 $river->id = (string) Str::uuid();
+            }
+
+            // Auto-generate slug from name if not provided
+            if (empty($river->slug)) {
+                $river->slug = Str::slug($river->name);
             }
         });
 

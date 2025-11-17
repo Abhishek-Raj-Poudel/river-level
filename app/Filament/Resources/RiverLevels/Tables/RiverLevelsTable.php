@@ -16,6 +16,8 @@ class RiverLevelsTable
             ->columns([
                 TextColumn::make('name')
                     ->searchable(),
+                TextColumn::make('station_name')
+                    ->searchable(),
                 TextColumn::make('country')
                     ->searchable(),
                 TextColumn::make('status')

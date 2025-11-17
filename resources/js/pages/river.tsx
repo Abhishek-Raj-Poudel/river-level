@@ -1,13 +1,16 @@
-import { River } from '@/data/rivers';
+import { River } from '@/types';
 import { Head } from '@inertiajs/react';
-import { RiverDetail } from './river-detail';
+import RiverDetail from './river-detail';
 
-export default function RiverPage({ river }: { river: River }) {
+interface Props {
+    river: River;
+}
+
+export default function RiverPage({ river }: Props) {
     return (
         <>
             <Head title={river.name} />
             <RiverDetail river={river} />
-
         </>
     );
 }

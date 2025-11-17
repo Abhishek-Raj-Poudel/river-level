@@ -2,9 +2,14 @@
 
 namespace App\Filament\Resources\RiverLevels\Schemas;
 
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+/* use Filament\Forms\Components\Section; */
+/* use Filament\Forms\Components\Grid; */
+use Filament\Forms\Components\Select;
+use Filament\Schemas\Components\Section as ComponentsSection;
 use Filament\Schemas\Schema;
 
 class RiverLevelForm
@@ -12,52 +17,217 @@ class RiverLevelForm
     public static function configure(Schema $schema): Schema
     {
         return $schema
+            ->columns(3)
             ->components([
-                TextInput::make('name')
-                    ->required(),
-                TextInput::make('country')
-                    ->required(),
-                TextInput::make('continent')
-                    ->required(),
-                TextInput::make('length')
-                    ->required()
-                    ->numeric(),
-                TextInput::make('current_water_level')
-                    ->required()
-                    ->numeric()
-                    ->extraAttributes(['step' => 'any']),
-                TextInput::make('normal_water_level')
-                    ->required()
-                    ->numeric()
-                    ->extraAttributes(['step' => 'any']),
-                TextInput::make('status')
-                    ->required(),
-                TextInput::make('current_flow_rate')
-                    ->required()
-                    ->numeric()
-                    ->extraAttributes(['step' => 'any']),
-                TextInput::make('average_flow_rate')
-                    ->required()
-                    ->numeric()
-                    ->extraAttributes(['step' => 'any']),
-                TextInput::make('temperature')
-                    ->required()
-                    ->numeric()
-                    ->extraAttributes(['step' => 'any']),
-                TextInput::make('lat')
-                    ->required()
-                    ->numeric()
-                    ->extraAttributes(['step' => 'any']),
-                TextInput::make('lng')
-                    ->required()
-                    ->numeric()
-                    ->extraAttributes(['step' => 'any']),
-                Textarea::make('description')
-                    ->required(),
-                DateTimePicker::make('last_updated')
-                    ->required(),
-                Textarea::make('weekly_data')
-                    ->required(),
+                ComponentsSection::make('Basic Information')
+                    ->description('General details about the river and monitoring station')
+                    ->icon('heroicon-o-information-circle')
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('name')
+                            ->label('River Name')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpan(1),
+
+                        TextInput::make('station_name')
+                            ->label('Monitoring Station')
+                            ->maxLength(255)
+                            ->placeholder('e.g., Central Station')
+                            ->columnSpan(1),
+
+                        Select::make('continent')
+                            ->required()
+                            ->options([
+                                'Africa' => 'Africa',
+                                'Antarctica' => 'Antarctica',
+                                'Asia' => 'Asia',
+                                'Europe' => 'Europe',
+                                'North America' => 'North America',
+                                'Oceania' => 'Oceania',
+                                'South America' => 'South America',
+                            ])
+                            ->searchable()
+                            ->columnSpan(1),
+
+                        TextInput::make('country')
+                            ->required()
+                            ->maxLength(255)
+                            ->columnSpan(1),
+
+                        TextInput::make('length')
+                            ->label('River Length')
+                            ->required()
+                            ->numeric()
+                            ->suffix('km')
+                            ->minValue(0)
+                            ->columnSpan(1),
+
+                        Textarea::make('description')
+                            ->required()
+                            ->rows(3)
+                            ->maxLength(1000)
+                            ->columnSpanFull(),
+                    ])
+                    ->columnSpan(3)
+                    ->collapsible(),
+
+                ComponentsSection::make('Water Level Monitoring')
+                    ->description('Current and normal water level measurements')
+                    ->icon('heroicon-o-chart-bar')
+                    ->columns(3)
+                    ->schema([
+                        TextInput::make('current_water_level')
+                            ->label('Current Level')
+                            ->required()
+                            ->numeric()
+                            ->suffix('m')
+                            ->extraAttributes(['step' => '0.01'])
+                            ->minValue(0)
+                            ->columnSpan(1),
+
+                        TextInput::make('normal_water_level')
+                            ->label('Normal Level')
+                            ->required()
+                            ->numeric()
+                            ->suffix('m')
+                            ->extraAttributes(['step' => '0.01'])
+                            ->minValue(0)
+                            ->columnSpan(1),
+
+                        Select::make('status')
+                            ->required()
+                            ->options([
+                                'Normal' => 'Normal',
+                                'Low' => 'Low',
+                                'High' => 'High',
+                                'Warning' => 'Warning',
+                                'Critical' => 'Critical',
+                            ])
+                            ->native(false)
+                            ->columnSpan(1),
+                    ])
+                    ->columnSpan(3)
+                    ->collapsible(),
+
+                ComponentsSection::make('Flow Rate Data')
+                    ->description('Current and average flow rate measurements')
+                    ->icon('heroicon-o-arrow-trending-up')
+                    ->columns(2)
+                    ->schema([
+                        TextInput::make('current_flow_rate')
+                            ->label('Current Flow Rate')
+                            ->required()
+                            ->numeric()
+                            ->suffix('m³/s')
+                            ->extraAttributes(['step' => '0.01'])
+                            ->minValue(0)
+                            ->columnSpan(1),
+
+                        TextInput::make('average_flow_rate')
+                            ->label('Average Flow Rate')
+                            ->required()
+                            ->numeric()
+                            ->suffix('m³/s')
+                            ->extraAttributes(['step' => '0.01'])
+                            ->minValue(0)
+                            ->columnSpan(1),
+                    ])
+                    ->columnSpan(3)
+                    ->collapsible(),
+
+                ComponentsSection::make('Environmental Data')
+                    ->description('Temperature and location information')
+                    ->icon('heroicon-o-map-pin')
+                    ->columns(3)
+                    ->schema([
+                        TextInput::make('temperature')
+                            ->label('Water Temperature')
+                            ->required()
+                            ->numeric()
+                            ->suffix('°C')
+                            ->extraAttributes(['step' => '0.1'])
+                            ->columnSpan(1),
+
+                        TextInput::make('lat')
+                            ->label('Latitude')
+                            ->required()
+                            ->numeric()
+                            ->extraAttributes(['step' => 'any'])
+                            ->placeholder('e.g., 27.7172')
+                            ->minValue(-90)
+                            ->maxValue(90)
+                            ->columnSpan(1),
+
+                        TextInput::make('lng')
+                            ->label('Longitude')
+                            ->required()
+                            ->numeric()
+                            ->extraAttributes(['step' => 'any'])
+                            ->placeholder('e.g., 85.3240')
+                            ->minValue(-180)
+                            ->maxValue(180)
+                            ->columnSpan(1),
+
+                        DateTimePicker::make('last_updated')
+                            ->label('Last Updated')
+                            ->required()
+                            ->native(false)
+                            ->seconds(false)
+                            ->columnSpanFull(),
+                    ])
+                    ->columnSpan(3)
+                    ->collapsible(),
+
+                ComponentsSection::make('Weekly Measurements')
+                    ->description('Historical data for the past week')
+                    ->icon('heroicon-o-calendar-days')
+                    ->schema([
+                        Repeater::make('weekly_data')
+                            ->label('')
+                            ->schema([
+                                Select::make('day')
+                                    ->required()
+                                    ->options([
+                                        'Monday' => 'Monday',
+                                        'Tuesday' => 'Tuesday',
+                                        'Wednesday' => 'Wednesday',
+                                        'Thursday' => 'Thursday',
+                                        'Friday' => 'Friday',
+                                        'Saturday' => 'Saturday',
+                                        'Sunday' => 'Sunday',
+                                    ])
+                                    ->native(false)
+                                    ->columnSpan(1),
+
+                                TextInput::make('level')
+                                    ->label('Water Level')
+                                    ->numeric()
+                                    ->required()
+                                    ->suffix('m')
+                                    ->extraAttributes(['step' => '0.01'])
+                                    ->minValue(0)
+                                    ->columnSpan(1),
+
+                                TextInput::make('flow')
+                                    ->label('Flow Rate')
+                                    ->numeric()
+                                    ->required()
+                                    ->suffix('m³/s')
+                                    ->extraAttributes(['step' => '0.01'])
+                                    ->minValue(0)
+                                    ->columnSpan(1),
+                            ])
+                            ->columns(3)
+                            ->defaultItems(0)
+                            ->addActionLabel('Add Daily Measurement')
+                            ->collapsible()
+                            ->itemLabel(fn(array $state): ?string => $state['day'] ?? null)
+                            ->reorderableWithButtons()
+                            ->cloneable()
+                    ])
+                    ->columnSpan(3)
+                    ->collapsible(),
             ]);
     }
 }

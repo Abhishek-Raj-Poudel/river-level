@@ -14,8 +14,7 @@ interface RiverCardProps {
 export const RiverCard = ({ river }: RiverCardProps) => {
     return (
         <>
-            {/* <Link href={`/river/${river.uid}`}> */}
-            <Link href={`/`}>
+            <Link href={`/river/${river.slug}`}>
                 <Card className="group bg-gradient-card relative cursor-pointer overflow-hidden border-border transition-all duration-300 hover:scale-[1.02] hover:border-primary/30 hover:shadow-glow">
                     {/* Background gradient overlay */}
                     <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
