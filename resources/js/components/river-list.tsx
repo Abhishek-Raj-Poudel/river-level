@@ -1,8 +1,9 @@
+import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
 
 import { River } from '@/types';
-import { Search, Waves } from 'lucide-react';
+import { Filter, Search, Waves } from 'lucide-react';
 import { RiverCard } from './river-card';
 
 interface RiversListProps {
@@ -59,58 +60,56 @@ export const RiversList = ({ rivers }: RiversListProps) => {
                         />
                     </div>
 
-                    {/*
-                     <div className="flex flex-wrap items-center justify-center gap-2">
-                         <div className="mr-4 flex items-center gap-1">
-                             <Filter className="h-4 w-4 text-muted-foreground" />
-                             <span className="text-sm text-muted-foreground">Filter by status:</span>
-                         </div>
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                        <div className="mr-4 flex items-center gap-1">
+                            <Filter className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">Filter by status:</span>
+                        </div>
 
-                         <Button variant={statusFilter === null ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter(null)} className="">
-                             All ({rivers.length})
-                         </Button>
+                        <Button variant={statusFilter === null ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter(null)} className="">
+                            All ({rivers.length})
+                        </Button>
 
-                         <Button
-                             variant={statusFilter === 'normal' ? 'default' : 'outline'}
-                             size="sm"
-                             onClick={() => setStatusFilter(statusFilter === 'normal' ? null : 'normal')}
-                             className="h-8 bg-white"
-                         >
-                             <div className="mr-2 h-2 w-2 rounded-full bg-water-normal" />
-                             Normal ({statusCounts.normal})
-                         </Button>
+                        <Button
+                            variant={statusFilter === 'normal' ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setStatusFilter(statusFilter === 'normal' ? null : 'normal')}
+                            className="h-8"
+                        >
+                            <div className="mr-2 h-2 w-2 rounded-full bg-water-normal" />
+                            Normal ({statusCounts.normal})
+                        </Button>
 
-                         <Button
-                             variant={statusFilter === 'low' ? 'default' : 'outline'}
-                             size="sm"
-                             onClick={() => setStatusFilter(statusFilter === 'low' ? null : 'low')}
-                             className="h-8 bg-white"
-                         >
-                             <div className="mr-2 h-2 w-2 rounded-full bg-water-low" />
-                             Low ({statusCounts.low})
-                         </Button>
+                        <Button
+                            variant={statusFilter === 'low' ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setStatusFilter(statusFilter === 'low' ? null : 'low')}
+                            className="h-8 "
+                        >
+                            <div className="mr-2 h-2 w-2 rounded-full bg-water-low" />
+                            Low ({statusCounts.low})
+                        </Button>
 
-                         <Button
-                             variant={statusFilter === 'high' ? 'default' : 'outline'}
-                             size="sm"
-                             onClick={() => setStatusFilter(statusFilter === 'high' ? null : 'high')}
-                             className="h-8 bg-white"
-                         >
-                             <div className="mr-2 h-2 w-2 rounded-full bg-water-high" />
-                             High ({statusCounts.high})
-                         </Button>
+                        <Button
+                            variant={statusFilter === 'high' ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setStatusFilter(statusFilter === 'high' ? null : 'high')}
+                            className="h-8 "
+                        >
+                            <div className="mr-2 h-2 w-2 rounded-full bg-water-high" />
+                            High ({statusCounts.high})
+                        </Button>
 
-                         <Button
-                             variant={statusFilter === 'critical' ? 'default' : 'outline'}
-                             size="sm"
-                             onClick={() => setStatusFilter(statusFilter === 'critical' ? null : 'critical')}
-                             className="h-8 bg-white"
-                         >
-                             <div className="mr-2 h-2 w-2 rounded-full bg-water-critical" />
-                             Critical ({statusCounts.critical})
-                         </Button>
-                     </div>
-                     */}
+                        <Button
+                            variant={statusFilter === 'critical' ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setStatusFilter(statusFilter === 'critical' ? null : 'critical')}
+                            className="h-8 "
+                        >
+                            <div className="mr-2 h-2 w-2 rounded-full bg-water-critical" />
+                            Critical ({statusCounts.critical})
+                        </Button>
+                    </div>
                 </div>
 
                 {/* Results count */}
