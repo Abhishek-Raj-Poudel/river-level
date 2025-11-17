@@ -10,18 +10,18 @@ const applyTheme = (appearance: Appearance) => {
 };
 
 export function initializeTheme() {
-    applyTheme('light');
+    applyTheme('dark');
 }
 
 export function useAppearance() {
-    const [appearance] = useState<Appearance>('light');
+    const [appearance] = useState<Appearance>('dark');
 
     const updateAppearance = useCallback(() => {
-        // Theme switching disabled - always light mode
+        // Theme switching disabled - always dark mode
     }, []);
 
     useEffect(() => {
-        applyTheme('light');
+        applyTheme('dark');
     }, []);
 
     return { appearance, updateAppearance } as const;

@@ -1,37 +1,35 @@
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
-// import { Badge } from "@/components/ui/badge";
 
-import { River, RiverNew } from '@/types';
+import { River } from '@/types';
 import { Search, Waves } from 'lucide-react';
 import { RiverCard } from './river-card';
 
 interface RiversListProps {
     rivers: River[];
-    rivers_new: RiverNew[];
 }
 
-export const RiversList = ({ rivers, rivers_new }: RiversListProps) => {
+export const RiversList = ({ rivers }: RiversListProps) => {
     const [searchTerm, setSearchTerm] = useState('');
-    // const [statusFilter, setStatusFilter] = useState<string | null>(null);
+    const [statusFilter, setStatusFilter] = useState<string | null>(null);
 
-    const filteredRiversNew = rivers_new.filter((river) => {
+    const filteredRivers = rivers.filter((river) => {
         const matchesSearch =
-            river.station_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            river.basin.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            river.district.toLowerCase().includes(searchTerm.toLowerCase());
+            river.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            river.country.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            river.continent.toLowerCase().includes(searchTerm.toLowerCase());
 
-        // const matchesStatus = !statusFilter || river.water_level_status === statusFilter;
+        const matchesStatus = !statusFilter || river.status === statusFilter;
 
-        return matchesSearch; // && matchesStatus;
+        return matchesSearch && matchesStatus;
     });
 
-    // const statusCounts = {
-    //     low: rivers.filter((r) => r.water_level_status === 'low').length,
-    //     normal: rivers.filter((r) => r.water_level_status === 'normal').length,
-    //     high: rivers.filter((r) => r.water_level_status === 'high').length,
-    //     critical: rivers.filter((r) => r.water_level_status === 'critical').length,
-    // };
+    const statusCounts = {
+        low: rivers.filter((r) => r.status === 'low').length,
+        normal: rivers.filter((r) => r.status === 'normal').length,
+        high: rivers.filter((r) => r.status === 'high').length,
+        critical: rivers.filter((r) => r.status === 'critical').length,
+    };
 
     return (
         <div className="bg-gradient-background min-h-screen">
@@ -118,19 +116,19 @@ export const RiversList = ({ rivers, rivers_new }: RiversListProps) => {
                 {/* Results count */}
                 <div className="mb-6 text-center">
                     <p className="text-muted-foreground">
-                        Showing {filteredRiversNew.length} of {rivers_new.length} rivers
+                        Showing {filteredRivers.length} of {rivers.length} rivers
                     </p>
                 </div>
 
                 {/* Rivers Grid */}
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {filteredRiversNew.map((river) => (
-                        <RiverCard key={river.index} river_new={river} />
+                    {filteredRivers.map((river) => (
+                        <RiverCard key={river.id} river={river} />
                     ))}
                 </div>
 
                 {/* No results */}
-                {filteredRiversNew.length === 0 && (
+                {filteredRivers.length === 0 && (
                     <div className="py-12 text-center">
                         <div className="mb-4 inline-block rounded-xl bg-muted/20 p-4">
                             <Search className="h-8 w-8 text-muted-foreground" />
