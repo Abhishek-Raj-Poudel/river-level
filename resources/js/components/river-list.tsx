@@ -16,6 +16,7 @@ export const RiversList = ({ rivers }: RiversListProps) => {
 
     const filteredRivers = rivers.filter((river) => {
         const matchesSearch =
+            (river.station_name || river.name).toLowerCase().includes(searchTerm.toLowerCase()) ||
             river.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             river.country.toLowerCase().includes(searchTerm.toLowerCase()) ||
             river.continent.toLowerCase().includes(searchTerm.toLowerCase());
@@ -84,7 +85,7 @@ export const RiversList = ({ rivers }: RiversListProps) => {
                             variant={statusFilter === 'low' ? 'default' : 'outline'}
                             size="sm"
                             onClick={() => setStatusFilter(statusFilter === 'low' ? null : 'low')}
-                            className="h-8 "
+                            className="h-8"
                         >
                             <div className="mr-2 h-2 w-2 rounded-full bg-water-low" />
                             Low ({statusCounts.low})
@@ -94,7 +95,7 @@ export const RiversList = ({ rivers }: RiversListProps) => {
                             variant={statusFilter === 'high' ? 'default' : 'outline'}
                             size="sm"
                             onClick={() => setStatusFilter(statusFilter === 'high' ? null : 'high')}
-                            className="h-8 "
+                            className="h-8"
                         >
                             <div className="mr-2 h-2 w-2 rounded-full bg-water-high" />
                             High ({statusCounts.high})
@@ -104,7 +105,7 @@ export const RiversList = ({ rivers }: RiversListProps) => {
                             variant={statusFilter === 'critical' ? 'default' : 'outline'}
                             size="sm"
                             onClick={() => setStatusFilter(statusFilter === 'critical' ? null : 'critical')}
-                            className="h-8 "
+                            className="h-8"
                         >
                             <div className="mr-2 h-2 w-2 rounded-full bg-water-critical" />
                             Critical ({statusCounts.critical})

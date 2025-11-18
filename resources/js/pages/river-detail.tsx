@@ -21,7 +21,7 @@ export default function RiverDetail({ river }: Props) {
 
     return (
         <>
-            <Head title={river.name} />
+            <Head title={river.station_name || river.name} />
             <div className="bg-gradient-background min-h-screen">
                 <div className="container mx-auto max-w-6xl px-4 py-8">
                     {/* Header */}
@@ -35,7 +35,7 @@ export default function RiverDetail({ river }: Props) {
                     <div className="mb-8">
                         <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                             <div>
-                                <h1 className="mb-2 text-4xl font-bold text-foreground">{river.name}</h1>
+                                <h1 className="mb-2 text-4xl font-bold text-foreground">{river.station_name || river.name}</h1>
                                 <div className="flex items-center gap-4 text-muted-foreground">
                                     <div className="flex items-center gap-1">
                                         <MapPin className="h-4 w-4" />

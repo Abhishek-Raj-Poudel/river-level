@@ -9,7 +9,7 @@ interface Props {
 export default function RiverPage({ river }: Props) {
     return (
         <>
-            <Head title={river.name} />
+            <Head title={river.station_name || river.name} />
             <RiverDetail river={river} />
         </>
     );

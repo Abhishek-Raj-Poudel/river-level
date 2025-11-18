@@ -23,7 +23,9 @@ export const RiverCard = ({ river }: RiverCardProps) => {
                         {/* Header */}
                         <div className="mb-4 flex items-start justify-between">
                             <div>
-                                <h3 className="text-xl font-bold text-foreground transition-colors group-hover:text-primary">{river.name}</h3>
+                                <h3 className="text-xl font-bold text-foreground transition-colors group-hover:text-primary">
+                                    {river.station_name || river.name}
+                                </h3>
                                 <p className="text-sm text-muted-foreground">
                                     {river.country} • {river.continent}
                                 </p>
