@@ -105,7 +105,9 @@ class RiverLevelForm
                                 'Critical' => 'Critical',
                             ])
                             ->native(false)
-                            ->columnSpan(1),
+                            ->columnSpan(1)
+                            ->disabled(),
+
                     ])
                     ->columnSpan(3)
                     ->collapsible(),

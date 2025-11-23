@@ -36,11 +36,13 @@ class RiverLevelSeeder extends Seeder
             // Generate coordinates based on basin (rough approximations for Nepal)
             $coordinates = $this->getCoordinatesForBasin($station['basin']);
 
+            $slug = Str::slug($station['basin'].'-'.$station['station_name']);
+
             $rivers[] = [
-                'id' => Str::uuid(),
-                'slug' => Str::slug($station['basin'].'-'.$station['station_name']),
+                'slug' => $slug,
                 'name' => $station['basin'], // Basin is used as river name
                 'station_name' => $station['station_name'], // Station name from DHM
+                'district' => $station['district'] ?? null, // District from DHM
                 'country' => 'Nepal',
                 'continent' => 'Asia',
                 'length' => rand(50, 1000), // Dummy length in km
@@ -64,8 +66,18 @@ class RiverLevelSeeder extends Seeder
         }
 
         foreach ($rivers as $river) {
+            // Check if record exists, if not generate ID
+            $existing = RiverLevel::where('slug', $river['slug'])->first();
+
+            if (! $existing && ! isset($river['id'])) {
+                $river['id'] = (string) Str::uuid();
+            }
+
             RiverLevel::withoutEvents(function () use ($river) {
-                RiverLevel::create($river);
+                RiverLevel::updateOrCreate(
+                    ['slug' => $river['slug']],
+                    $river
+                );
             });
         }
 
@@ -152,6 +164,7 @@ class RiverLevelSeeder extends Seeder
                 'slug' => 'bagmati',
                 'name' => 'Bagmati',
                 'station_name' => 'Bagmati River at Khokana',
+                'district' => 'Lalitpur',
                 'country' => 'Nepal',
                 'continent' => 'Asia',
                 'length' => 900,
@@ -179,6 +192,8 @@ class RiverLevelSeeder extends Seeder
                 'id' => Str::uuid(),
                 'slug' => 'bishnumati',
                 'name' => 'Bishnumati',
+                'station_name' => null,
+                'district' => 'Kathmandu',
                 'country' => 'Nepal',
                 'continent' => 'Asia',
                 'length' => 20,
@@ -206,6 +221,8 @@ class RiverLevelSeeder extends Seeder
                 'id' => Str::uuid(),
                 'slug' => 'manohara',
                 'name' => 'Manohara',
+                'station_name' => null,
+                'district' => 'Kathmandu',
                 'country' => 'Nepal',
                 'continent' => 'Asia',
                 'length' => 15,
@@ -233,6 +250,8 @@ class RiverLevelSeeder extends Seeder
                 'id' => Str::uuid(),
                 'slug' => 'hanumante',
                 'name' => 'Hanumante',
+                'station_name' => null,
+                'district' => 'Bhaktapur',
                 'country' => 'Nepal',
                 'continent' => 'Asia',
                 'length' => 12,
@@ -260,6 +279,8 @@ class RiverLevelSeeder extends Seeder
                 'id' => Str::uuid(),
                 'slug' => 'dhobikhola',
                 'name' => 'Dhobikhola',
+                'station_name' => null,
+                'district' => 'Kathmandu',
                 'country' => 'Nepal',
                 'continent' => 'Asia',
                 'length' => 18,
@@ -287,6 +308,8 @@ class RiverLevelSeeder extends Seeder
                 'id' => Str::uuid(),
                 'slug' => 'tukucha',
                 'name' => 'Tukucha',
+                'station_name' => null,
+                'district' => 'Kathmandu',
                 'country' => 'Nepal',
                 'continent' => 'Asia',
                 'length' => 14,
@@ -314,6 +337,8 @@ class RiverLevelSeeder extends Seeder
                 'id' => Str::uuid(),
                 'slug' => 'nakkhu',
                 'name' => 'Nakkhu',
+                'station_name' => null,
+                'district' => 'Lalitpur',
                 'country' => 'Nepal',
                 'continent' => 'Asia',
                 'length' => 16,
@@ -341,6 +366,8 @@ class RiverLevelSeeder extends Seeder
                 'id' => Str::uuid(),
                 'slug' => 'balkhu',
                 'name' => 'Balkhu',
+                'station_name' => null,
+                'district' => 'Kathmandu',
                 'country' => 'Nepal',
                 'continent' => 'Asia',
                 'length' => 10,
@@ -370,6 +397,8 @@ class RiverLevelSeeder extends Seeder
                 'id' => Str::uuid(),
                 'slug' => 'koshi',
                 'name' => 'Koshi',
+                'station_name' => null,
+                'district' => 'Sunsari',
                 'country' => 'Nepal',
                 'continent' => 'Asia',
                 'length' => 720,
@@ -397,6 +426,8 @@ class RiverLevelSeeder extends Seeder
                 'id' => Str::uuid(),
                 'slug' => 'gandaki',
                 'name' => 'Gandaki',
+                'station_name' => null,
+                'district' => 'Nawalpur',
                 'country' => 'Nepal',
                 'continent' => 'Asia',
                 'length' => 630,
@@ -424,6 +455,8 @@ class RiverLevelSeeder extends Seeder
                 'id' => Str::uuid(),
                 'slug' => 'karnali',
                 'name' => 'Karnali',
+                'station_name' => null,
+                'district' => 'Surkhet',
                 'country' => 'Nepal',
                 'continent' => 'Asia',
                 'length' => 507,
@@ -453,6 +486,8 @@ class RiverLevelSeeder extends Seeder
                 'id' => Str::uuid(),
                 'slug' => 'ganges',
                 'name' => 'Ganges',
+                'station_name' => null,
+                'district' => 'Varanasi',
                 'country' => 'India',
                 'continent' => 'Asia',
                 'length' => 2525,
@@ -480,6 +515,8 @@ class RiverLevelSeeder extends Seeder
                 'id' => Str::uuid(),
                 'slug' => 'brahmaputra',
                 'name' => 'Brahmaputra',
+                'station_name' => null,
+                'district' => 'Guwahati',
                 'country' => 'India',
                 'continent' => 'Asia',
                 'length' => 3848,

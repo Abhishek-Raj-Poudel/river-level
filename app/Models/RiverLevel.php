@@ -22,6 +22,7 @@ class RiverLevel extends Model
         'slug',
         'name',
         'station_name',
+        'district',
         'country',
         'continent',
         'length',
@@ -67,7 +68,7 @@ class RiverLevel extends Model
             Log::info("River saved: {$river->name}, Level: {$river->current_water_level}, Threshold: {$river->normal_water_level}");
 
             if ($river->current_water_level > $river->normal_water_level) {
-                Log::info("🚨 River level exceeded! Broadcasting event and sending email...");
+                Log::info('🚨 River level exceeded! Broadcasting event and sending email...');
 
                 // ✅ Use broadcast() helper instead of event()
                 broadcast(new \App\Events\RiverLevelExceeded($river));
