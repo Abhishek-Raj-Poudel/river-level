@@ -1,9 +1,9 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 
 import { River } from '@/types';
-import { Filter, Search, Waves } from 'lucide-react';
+import { Filter, MapPin, Search, Waves } from 'lucide-react';
 import { RiverCard } from './river-card';
 
 interface RiversListProps {
@@ -13,17 +13,26 @@ interface RiversListProps {
 export const RiversList = ({ rivers }: RiversListProps) => {
     const [searchTerm, setSearchTerm] = useState('');
     const [statusFilter, setStatusFilter] = useState<string | null>(null);
+    const [districtFilter, setDistrictFilter] = useState<string | null>('Kathmandu');
+
+    // Get unique districts from rivers
+    const districts = useMemo(() => {
+        const uniqueDistricts = Array.from(new Set(rivers.map((r) => r.district).filter((d): d is string => Boolean(d))));
+        return uniqueDistricts.sort();
+    }, [rivers]);
 
     const filteredRivers = rivers.filter((river) => {
         const matchesSearch =
             (river.station_name || river.name).toLowerCase().includes(searchTerm.toLowerCase()) ||
             river.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             river.country.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            river.continent.toLowerCase().includes(searchTerm.toLowerCase());
+            river.continent.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (river.district && river.district.toLowerCase().includes(searchTerm.toLowerCase()));
 
         const matchesStatus = !statusFilter || river.status === statusFilter;
+        const matchesDistrict = !districtFilter || river.district === districtFilter;
 
-        return matchesSearch && matchesStatus;
+        return matchesSearch && matchesStatus && matchesDistrict;
     });
 
     const statusCounts = {
@@ -32,6 +41,14 @@ export const RiversList = ({ rivers }: RiversListProps) => {
         high: rivers.filter((r) => r.status === 'high').length,
         critical: rivers.filter((r) => r.status === 'critical').length,
     };
+
+    const districtCounts = useMemo(() => {
+        const counts: Record<string, number> = {};
+        districts.forEach((district) => {
+            counts[district] = rivers.filter((r) => r.district === district).length;
+        });
+        return counts;
+    }, [districts, rivers]);
 
     return (
         <div className="bg-gradient-background min-h-screen">
@@ -51,7 +68,7 @@ export const RiversList = ({ rivers }: RiversListProps) => {
 
                 {/* Search and Filters */}
                 <div className="mb-8 space-y-4">
-                    <div className="relative mx-auto max-w-md">
+                    <div className="relative mx-auto w-full">
                         <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
                         <Input
                             placeholder="Search rivers"
@@ -61,13 +78,43 @@ export const RiversList = ({ rivers }: RiversListProps) => {
                         />
                     </div>
 
+                    {/* District Filters */}
+                    <div className="flex flex-wrap items-center justify-center gap-2">
+                        <div className="mr-4 flex items-center gap-1">
+                            <MapPin className="h-4 w-4 text-muted-foreground" />
+                            <span className="text-sm text-muted-foreground">Filter by district:</span>
+                        </div>
+
+                        <Button
+                            variant={districtFilter === null ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setDistrictFilter(null)}
+                            className="h-8"
+                        >
+                            All ({rivers.length})
+                        </Button>
+
+                        {districts.map((district) => (
+                            <Button
+                                key={district}
+                                variant={districtFilter === district ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setDistrictFilter(districtFilter === district ? null : district)}
+                                className="h-8"
+                            >
+                                {district} ({districtCounts[district] || 0})
+                            </Button>
+                        ))}
+                    </div>
+
+                    {/* Status Filters */}
                     <div className="flex flex-wrap items-center justify-center gap-2">
                         <div className="mr-4 flex items-center gap-1">
                             <Filter className="h-4 w-4 text-muted-foreground" />
                             <span className="text-sm text-muted-foreground">Filter by status:</span>
                         </div>
 
-                        <Button variant={statusFilter === null ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter(null)} className="">
+                        <Button variant={statusFilter === null ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter(null)} className="h-8">
                             All ({rivers.length})
                         </Button>
 

@@ -48,6 +48,7 @@ interface River {
     slug: string;
     name: string;
     station_name?: string;
+    district?: string;
     country: string;
     continent: string;
     length: number; // in kilometers
