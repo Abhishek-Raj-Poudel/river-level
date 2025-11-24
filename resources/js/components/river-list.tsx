@@ -6,6 +6,8 @@ import { River } from '@/types';
 import { Filter, MapPin, Search, Waves } from 'lucide-react';
 import { RiverCard } from './river-card';
 
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
 interface RiversListProps {
     rivers: River[];
 }
@@ -30,7 +32,7 @@ export const RiversList = ({ rivers }: RiversListProps) => {
             (river.district && river.district.toLowerCase().includes(searchTerm.toLowerCase()));
 
         const matchesStatus = !statusFilter || river.status === statusFilter;
-        const matchesDistrict = !districtFilter || river.district === districtFilter;
+        const matchesDistrict = !districtFilter || districtFilter === 'all' || river.district === districtFilter;
 
         return matchesSearch && matchesStatus && matchesDistrict;
     });
@@ -79,32 +81,36 @@ export const RiversList = ({ rivers }: RiversListProps) => {
                     </div>
 
                     {/* District Filters */}
-                    <div className="flex flex-wrap items-center justify-center gap-2">
-                        <div className="mr-4 flex items-center gap-1">
+                    <div className="flex flex-wrap items-center justify-center gap-4">
+                        <div className="flex items-center gap-2">
                             <MapPin className="h-4 w-4 text-muted-foreground" />
                             <span className="text-sm text-muted-foreground">Filter by district:</span>
+                            <div className="w-[200px]">
+                                <Select
+                                    value={districtFilter || 'all'}
+                                    onValueChange={(value) => setDistrictFilter(value === 'all' ? null : value)}
+                                >
+                                    <SelectTrigger>
+                                        <SelectValue placeholder="Select district" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="all">All Districts ({rivers.length})</SelectItem>
+                                        {districts.map((district) => (
+                                            <SelectItem key={district} value={district}>
+                                                {district} ({districtCounts[district] || 0})
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
 
-                        <Button
-                            variant={districtFilter === null ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setDistrictFilter(null)}
-                            className="h-8"
-                        >
-                            All ({rivers.length})
-                        </Button>
-
-                        {districts.map((district) => (
-                            <Button
-                                key={district}
-                                variant={districtFilter === district ? 'default' : 'outline'}
-                                size="sm"
-                                onClick={() => setDistrictFilter(districtFilter === district ? null : district)}
-                                className="h-8"
-                            >
-                                {district} ({districtCounts[district] || 0})
-                            </Button>
-                        ))}
+                        {districtFilter && districtFilter !== 'all' && (
+                            <div className="flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
+                                <span>Showing rivers in:</span>
+                                <span className="font-bold">{districtFilter}</span>
+                            </div>
+                        )}
                     </div>
 
                     {/* Status Filters */}
