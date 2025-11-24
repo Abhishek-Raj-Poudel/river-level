@@ -64,7 +64,7 @@ export const RiversList = ({ rivers }: RiversListProps) => {
                         <h1 className="text-4xl font-bold text-foreground md:text-5xl">River Monitor</h1>
                     </div>
                     <p className="mx-auto max-w-2xl text-xl text-muted-foreground">
-                        Real-time monitoring of the world's major rivers with water levels, flow rates, and environmental data
+                        Monitoring of the Nepal's major rivers with water levels, flow rates, and environmental data
                     </p>
                 </div>
 
