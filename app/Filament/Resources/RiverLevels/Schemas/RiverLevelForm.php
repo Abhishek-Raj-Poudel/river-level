@@ -2,13 +2,13 @@
 
 namespace App\Filament\Resources\RiverLevels\Schemas;
 
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\TextInput;
 /* use Filament\Forms\Components\Section; */
 /* use Filament\Forms\Components\Grid; */
-use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Section as ComponentsSection;
 use Filament\Schemas\Schema;
 
@@ -34,6 +34,18 @@ class RiverLevelForm
                             ->label('Monitoring Station')
                             ->maxLength(255)
                             ->placeholder('e.g., Central Station')
+                            ->columnSpan(1),
+
+                        TextInput::make('district')
+                            ->label('District')
+                            ->maxLength(255)
+                            ->placeholder('e.g., Kathmandu')
+                            ->columnSpan(1),
+
+                        TextInput::make('scrape_link')
+                            ->label('Scrape Link')
+                            ->url()
+                            ->placeholder('https://example.com/scrape-data')
                             ->columnSpan(1),
 
                         Select::make('continent')
@@ -112,32 +124,6 @@ class RiverLevelForm
                     ->columnSpan(3)
                     ->collapsible(),
 
-                ComponentsSection::make('Flow Rate Data')
-                    ->description('Current and average flow rate measurements')
-                    ->icon('heroicon-o-arrow-trending-up')
-                    ->columns(2)
-                    ->schema([
-                        TextInput::make('current_flow_rate')
-                            ->label('Current Flow Rate')
-                            ->required()
-                            ->numeric()
-                            ->suffix('m³/s')
-                            ->extraAttributes(['step' => '0.01'])
-                            ->minValue(0)
-                            ->columnSpan(1),
-
-                        TextInput::make('average_flow_rate')
-                            ->label('Average Flow Rate')
-                            ->required()
-                            ->numeric()
-                            ->suffix('m³/s')
-                            ->extraAttributes(['step' => '0.01'])
-                            ->minValue(0)
-                            ->columnSpan(1),
-                    ])
-                    ->columnSpan(3)
-                    ->collapsible(),
-
                 ComponentsSection::make('Environmental Data')
                     ->description('Temperature and location information')
                     ->icon('heroicon-o-map-pin')
@@ -210,23 +196,14 @@ class RiverLevelForm
                                     ->extraAttributes(['step' => '0.01'])
                                     ->minValue(0)
                                     ->columnSpan(1),
-
-                                TextInput::make('flow')
-                                    ->label('Flow Rate')
-                                    ->numeric()
-                                    ->required()
-                                    ->suffix('m³/s')
-                                    ->extraAttributes(['step' => '0.01'])
-                                    ->minValue(0)
-                                    ->columnSpan(1),
                             ])
-                            ->columns(3)
+                            ->columns(2)
                             ->defaultItems(0)
                             ->addActionLabel('Add Daily Measurement')
                             ->collapsible()
-                            ->itemLabel(fn(array $state): ?string => $state['day'] ?? null)
+                            ->itemLabel(fn (array $state): ?string => $state['day'] ?? null)
                             ->reorderableWithButtons()
-                            ->cloneable()
+                            ->cloneable(),
                     ])
                     ->columnSpan(3)
                     ->collapsible(),

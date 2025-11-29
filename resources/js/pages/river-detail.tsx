@@ -5,8 +5,8 @@ import { getStatusColor, getStatusText } from '@/data/rivers';
 import { cn } from '@/lib/utils';
 import { River } from '@/types';
 import { Head, router } from '@inertiajs/react';
-import { Activity, ArrowLeft, Calendar, Droplets, MapPin, Thermometer, TrendingUp } from 'lucide-react';
-import { Area, AreaChart, CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Activity, ArrowLeft, Calendar, Droplets, MapPin, Thermometer } from 'lucide-react';
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
 interface Props {
     river: River;
@@ -64,7 +64,7 @@ export default function RiverDetail({ river }: Props) {
                     </div>
 
                     {/* Stats Grid */}
-                    <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-4">
+                    <div className="mb-8 grid grid-cols-1 gap-6 md:grid-cols-3">
                         <Card className="bg-gradient-card border-border/50 p-6">
                             <div className="mb-3 flex items-center gap-3">
                                 <div className="rounded-lg bg-primary/20 p-2">
@@ -82,17 +82,6 @@ export default function RiverDetail({ river }: Props) {
                                     }}
                                 />
                             </div>
-                        </Card>
-
-                        <Card className="bg-gradient-card border-border/50 p-6">
-                            <div className="mb-3 flex items-center gap-3">
-                                <div className="rounded-lg bg-accent/20 p-2">
-                                    <TrendingUp className="h-5 w-5 text-accent" />
-                                </div>
-                                <h3 className="font-semibold text-foreground">Flow Rate</h3>
-                            </div>
-                            <div className="mb-1 text-3xl font-bold text-foreground">{river.current_flow_rate.toLocaleString()}</div>
-                            <div className="text-sm text-muted-foreground">m³/s • Avg: {river.average_flow_rate.toLocaleString()}</div>
                         </Card>
 
                         <Card className="bg-gradient-card border-border/50 p-6">
@@ -119,53 +108,25 @@ export default function RiverDetail({ river }: Props) {
                     </div>
 
                     {/* Charts */}
-                    <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-                        <Card className="bg-gradient-card border-border/50 p-6">
-                            <h3 className="mb-6 text-xl font-bold text-foreground">Weekly Water Levels</h3>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <AreaChart data={river.weekly_data}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                                    <XAxis dataKey="day" stroke="white" tick={{ fill: 'white' }} fontSize={12} />
-                                    <YAxis stroke="white" tick={{ fill: 'white' }} fontSize={12} />
-                                    <Tooltip
-                                        contentStyle={{
-                                            backgroundColor: 'hsl(var(--card))',
-                                            border: '1px solid hsl(var(--border))',
-                                            borderRadius: '8px',
-                                            color: 'hsl(var(--foreground))',
-                                        }}
-                                    />
-                                    <Area type="monotone" dataKey="level" stroke="#3b82f6" fill="#3b82f680" strokeWidth={2} />
-                                </AreaChart>
-                            </ResponsiveContainer>
-                        </Card>
-
-                        <Card className="bg-gradient-card border-border/50 p-6">
-                            <h3 className="mb-6 text-xl font-bold text-foreground">Weekly Flow Rates</h3>
-                            <ResponsiveContainer width="100%" height={300}>
-                                <LineChart data={river.weekly_data}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                                    <XAxis dataKey="day" stroke="white" tick={{ fill: 'white' }} fontSize={12} />
-                                    <YAxis stroke="white" tick={{ fill: 'white' }} fontSize={12} />
-                                    <Tooltip
-                                        contentStyle={{
-                                            backgroundColor: 'hsl(var(--card))',
-                                            border: '1px solid hsl(var(--border))',
-                                            borderRadius: '8px',
-                                            color: 'hsl(var(--foreground))',
-                                        }}
-                                    />
-                                    <Line
-                                        type="monotone"
-                                        dataKey="flow"
-                                        stroke="#3b82f6"
-                                        strokeWidth={3}
-                                        dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-                                    />
-                                </LineChart>
-                            </ResponsiveContainer>
-                        </Card>
-                    </div>
+                    <Card className="bg-gradient-card border-border/50 p-6">
+                        <h3 className="mb-6 text-xl font-bold text-foreground">Weekly Water Levels</h3>
+                        <ResponsiveContainer width="100%" height={300}>
+                            <AreaChart data={river.weekly_data}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                                <XAxis dataKey="day" stroke="white" tick={{ fill: 'white' }} fontSize={12} />
+                                <YAxis stroke="white" tick={{ fill: 'white' }} fontSize={12} />
+                                <Tooltip
+                                    contentStyle={{
+                                        backgroundColor: 'hsl(var(--card))',
+                                        border: '1px solid hsl(var(--border))',
+                                        borderRadius: '8px',
+                                        color: 'hsl(var(--foreground))',
+                                    }}
+                                />
+                                <Area type="monotone" dataKey="level" stroke="#3b82f6" fill="#3b82f680" strokeWidth={2} />
+                            </AreaChart>
+                        </ResponsiveContainer>
+                    </Card>
 
                     {/* Additional Info */}
                     <Card className="bg-gradient-card mt-8 border-border/50 p-6">

@@ -13,15 +13,20 @@ class DhmScraperService
     protected string $url = 'https://dhm.gov.np/hydrology/realtime-stream';
     /* protected string $url = 'https://hydrology.gov.np/#/river_watch?_k=pprrmt'; */
 
-    public function fetch()
+    public function fetch(?string $url = null)
     {
+        $scrapeUrl = $url ?? $this->url;
+
         try {
-            Log::info('Fetching DHM river data...');
+            Log::info('Fetching DHM river data...', ['url' => $scrapeUrl]);
 
             $client = new Client(['timeout' => 15, 'headers' => ['User-Agent' => 'RiverWatchScraper']]);
-            $res = $client->get($this->url);
+            $res = $client->get($scrapeUrl);
             $html = (string) $res->getBody();
-            Log::info($html);
+
+            if (! $url) {
+                Log::info($html); // Only log full HTML for main URL
+            }
 
             $crawler = new Crawler($html);
             $rows = [];
@@ -41,11 +46,11 @@ class DhmScraperService
                 }
             });
 
-            Log::info('Fetched DHM data successfully', ['count' => count($rows)]);
+            Log::info('Fetched DHM data successfully', ['count' => count($rows), 'url' => $scrapeUrl]);
 
             return $rows;
         } catch (\Throwable $e) {
-            Log::error('Error fetching DHM river data', ['message' => $e->getMessage()]);
+            Log::error('Error fetching DHM river data', ['message' => $e->getMessage(), 'url' => $scrapeUrl]);
 
             return [];
         }

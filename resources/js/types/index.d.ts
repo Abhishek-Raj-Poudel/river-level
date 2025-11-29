@@ -49,6 +49,7 @@ interface River {
     name: string;
     station_name?: string;
     district?: string;
+    scrape_link?: string;
     country: string;
     continent: string;
     length: number; // in kilometers
@@ -67,7 +68,6 @@ interface River {
     weekly_data: Array<{
         day: string;
         level: number;
-        flow: number;
     }>;
 }
 

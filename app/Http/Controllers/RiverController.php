@@ -80,6 +80,38 @@ class RiverController extends Controller
 
     public function show(RiverLevel $river)
     {
+        // If the river has a specific scrape link, fetch data from that URL
+        if (! empty($river->scrape_link)) {
+            $scraper = new DhmScraperService;
+
+            Log::info('Fetching data for specific river', [
+                'river_id' => $river->id,
+                'river_name' => $river->name,
+                'scrape_link' => $river->scrape_link,
+            ]);
+
+            $specificData = $scraper->fetch($river->scrape_link);
+
+            if (! empty($specificData)) {
+                try {
+                    // Update this specific river with the scraped data
+                    $updateResult = $scraper->updateRiverLevels($specificData);
+                    Log::info('Updated specific river from custom scrape link', [
+                        'river_id' => $river->id,
+                        'updates' => $updateResult,
+                    ]);
+
+                    // Refresh the river data
+                    $river->refresh();
+                } catch (\Throwable $e) {
+                    Log::error('Failed to update river from custom scrape link', [
+                        'river_id' => $river->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
+            }
+        }
+
         return Inertia::render('river', [
             'river' => $river,
         ]);
