@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\River;
 use App\Models\RiverLevel;
 use App\Services\DhmScraperService;
 use Illuminate\Support\Facades\Cache;

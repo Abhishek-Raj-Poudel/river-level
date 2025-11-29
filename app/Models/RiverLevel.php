@@ -39,11 +39,9 @@ class RiverLevel extends Model
         'lng',
         'description',
         'last_updated',
-        'weekly_data',
     ];
 
     protected $casts = [
-        'weekly_data' => 'array',
         'last_updated' => 'datetime',
     ];
 

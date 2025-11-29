@@ -56,7 +56,6 @@ class RiverLevelSeeder extends Seeder
                 'lng' => $coordinates['lng'],
                 'description' => "River monitoring station: {$station['station_name']} in {$station['district']} district. Part of the {$station['basin']} river basin.",
                 'last_updated' => Carbon::now(),
-                'weekly_data' => $this->generateWeeklyData($waterLevel),
             ];
         }
 

@@ -7,10 +7,7 @@ use Filament\Actions\CreateAction;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\TextInput;
 use Filament\Resources\RelationManagers\RelationManager;
-use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Table;
@@ -20,27 +17,6 @@ class RiverMeasurementsRelationManager extends RelationManager
     protected static string $relationship = 'measurements';
 
     protected static ?string $recordTitleAttribute = 'measured_at';
-
-    public function form(Schema $form): Schema
-    {
-        return $form
-            ->schema([
-                DateTimePicker::make('measured_at')
-                    ->label('Measurement Date & Time')
-                    ->required()
-                    ->default(now())
-                    ->native(false)
-                    ->seconds(false),
-
-                TextInput::make('water_level')
-                    ->label('Water Level')
-                    ->required()
-                    ->numeric()
-                    ->suffix('m')
-                    ->extraAttributes(['step' => '0.01'])
-                    ->minValue(0),
-            ]);
-    }
 
     public function table(Table $table): Table
     {
