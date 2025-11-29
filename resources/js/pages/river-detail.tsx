@@ -6,7 +6,14 @@ import { cn } from '@/lib/utils';
 import { River } from '@/types';
 import { Head, router } from '@inertiajs/react';
 import { Activity, ArrowLeft, Calendar, Droplets, MapPin, Thermometer } from 'lucide-react';
+import { lazy, Suspense } from 'react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+
+// Lazy load map components to avoid SSR issues
+const MapContainer = lazy(() => import('react-leaflet').then((mod) => ({ default: mod.MapContainer })));
+const TileLayer = lazy(() => import('react-leaflet').then((mod) => ({ default: mod.TileLayer })));
+const Marker = lazy(() => import('react-leaflet').then((mod) => ({ default: mod.Marker })));
+const Popup = lazy(() => import('react-leaflet').then((mod) => ({ default: mod.Popup })));
 
 interface Props {
     river: River;
@@ -14,6 +21,11 @@ interface Props {
 
 export default function RiverDetail({ river }: Props) {
     const lastUpdated = new Date(river.last_updated).toLocaleString();
+
+    // Sort measurements by date (oldest first for proper chart display)
+    const sortedMeasurements = (river.recent_measurements || []).sort(
+        (a, b) => new Date(a.measured_at).getTime() - new Date(b.measured_at).getTime(),
+    );
 
     const handleBack = () => {
         router.visit('/');
@@ -111,7 +123,7 @@ export default function RiverDetail({ river }: Props) {
                     <Card className="bg-gradient-card border-border/50 p-6">
                         <h3 className="mb-6 text-xl font-bold text-foreground">Weekly Water Levels</h3>
                         <ResponsiveContainer width="100%" height={300}>
-                            <AreaChart data={river.recent_measurements || []}>
+                            <AreaChart data={sortedMeasurements}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                                 <XAxis
                                     dataKey="measured_at"
@@ -133,6 +145,48 @@ export default function RiverDetail({ river }: Props) {
                                 <Area type="monotone" dataKey="water_level" stroke="#3b82f6" fill="#3b82f680" strokeWidth={2} />
                             </AreaChart>
                         </ResponsiveContainer>
+                    </Card>
+
+                    {/* Map */}
+                    <Card className="bg-gradient-card mt-8 border-border/50 p-6">
+                        <h3 className="mb-4 text-xl font-bold text-foreground">River Location</h3>
+                        <div className="h-96 w-full overflow-hidden rounded-lg">
+                            <Suspense
+                                fallback={
+                                    <div className="flex h-full w-full items-center justify-center rounded-lg bg-muted">
+                                        <div className="text-center">
+                                            <MapPin className="mx-auto mb-2 h-12 w-12 text-muted-foreground" />
+                                            <p className="text-muted-foreground">Loading map...</p>
+                                        </div>
+                                    </div>
+                                }
+                            >
+                                <MapContainer
+                                    center={[river.lat, river.lng]}
+                                    zoom={10}
+                                    style={{ height: '100%', width: '100%' }}
+                                    className="rounded-lg"
+                                >
+                                    <TileLayer
+                                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                    />
+                                    <Marker position={[river.lat, river.lng]}>
+                                        <Popup>
+                                            <div className="text-center">
+                                                <h4 className="font-semibold">{river.station_name || river.name}</h4>
+                                                <p className="text-sm text-muted-foreground">
+                                                    {river.country}, {river.continent}
+                                                </p>
+                                                <p className="text-sm">
+                                                    Lat: {river.lat}°, Lng: {river.lng}°
+                                                </p>
+                                            </div>
+                                        </Popup>
+                                    </Marker>
+                                </MapContainer>
+                            </Suspense>
+                        </div>
                     </Card>
 
                     {/* Additional Info */}
