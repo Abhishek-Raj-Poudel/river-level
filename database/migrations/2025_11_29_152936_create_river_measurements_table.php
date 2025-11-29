@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('river_measurements', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('river_level_id')->constrained('river_levels')->onDelete('cascade');
+            $table->string('river_level_id');
+            $table->foreign('river_level_id')->references('id')->on('river_levels')->onDelete('cascade');
             $table->decimal('water_level', 8, 2); // Water level in meters
             $table->timestamp('measured_at'); // When the measurement was taken
             $table->timestamps(); // Created/updated timestamps
