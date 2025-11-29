@@ -108,13 +108,13 @@ class RiverLevelForm
                             ->columnSpan(1),
 
                         Select::make('status')
-                            ->required()
+                            /* ->required() */
                             ->options([
-                                'Normal' => 'Normal',
-                                'Low' => 'Low',
-                                'High' => 'High',
-                                'Warning' => 'Warning',
-                                'Critical' => 'Critical',
+                                'normal' => 'Normal',
+                                'low' => 'Low',
+                                'high' => 'High',
+                                'warning' => 'Warning',
+                                'critical' => 'Critical',
                             ])
                             ->native(false)
                             ->columnSpan(1)
@@ -174,18 +174,11 @@ class RiverLevelForm
                         Repeater::make('weekly_data')
                             ->label('')
                             ->schema([
-                                Select::make('day')
+                                DateTimePicker::make('datetime')
+                                    ->label('Date & Time')
                                     ->required()
-                                    ->options([
-                                        'Monday' => 'Monday',
-                                        'Tuesday' => 'Tuesday',
-                                        'Wednesday' => 'Wednesday',
-                                        'Thursday' => 'Thursday',
-                                        'Friday' => 'Friday',
-                                        'Saturday' => 'Saturday',
-                                        'Sunday' => 'Sunday',
-                                    ])
                                     ->native(false)
+                                    ->seconds(false)
                                     ->columnSpan(1),
 
                                 TextInput::make('level')
@@ -199,9 +192,9 @@ class RiverLevelForm
                             ])
                             ->columns(2)
                             ->defaultItems(0)
-                            ->addActionLabel('Add Daily Measurement')
+                            ->addActionLabel('Add Measurement')
                             ->collapsible()
-                            ->itemLabel(fn (array $state): ?string => $state['day'] ?? null)
+                            ->itemLabel(fn(array $state): ?string => isset($state['datetime']) ? \Carbon\Carbon::parse($state['datetime'])->format('M j, H:i') : null)
                             ->reorderableWithButtons()
                             ->cloneable(),
                     ])

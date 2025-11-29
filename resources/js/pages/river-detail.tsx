@@ -113,7 +113,13 @@ export default function RiverDetail({ river }: Props) {
                         <ResponsiveContainer width="100%" height={300}>
                             <AreaChart data={river.weekly_data}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                                <XAxis dataKey="day" stroke="white" tick={{ fill: 'white' }} fontSize={12} />
+                                <XAxis
+                                    dataKey="datetime"
+                                    stroke="white"
+                                    tick={{ fill: 'white' }}
+                                    fontSize={12}
+                                    tickFormatter={(value) => new Date(value).toLocaleDateString()}
+                                />
                                 <YAxis stroke="white" tick={{ fill: 'white' }} fontSize={12} />
                                 <Tooltip
                                     contentStyle={{
@@ -122,6 +128,7 @@ export default function RiverDetail({ river }: Props) {
                                         borderRadius: '8px',
                                         color: 'hsl(var(--foreground))',
                                     }}
+                                    labelFormatter={(value) => new Date(value).toLocaleString()}
                                 />
                                 <Area type="monotone" dataKey="level" stroke="#3b82f6" fill="#3b82f680" strokeWidth={2} />
                             </AreaChart>

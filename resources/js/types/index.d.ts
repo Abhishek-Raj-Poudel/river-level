@@ -66,7 +66,7 @@ interface River {
     description: string;
     last_updated: string;
     weekly_data: Array<{
-        day: string;
+        datetime: string;
         level: number;
     }>;
 }

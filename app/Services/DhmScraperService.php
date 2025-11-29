@@ -86,10 +86,41 @@ class DhmScraperService
                 if ($riverLevel) {
                     // Update the record with scraped data (without triggering events)
                     $riverLevel->withoutEvents(function () use ($riverLevel, $station) {
+                        $currentLevel = (float) $station['water_level'];
+                        $weeklyData = $riverLevel->weekly_data ?? [];
+
+                        // Check if we need to add current measurement to weekly data
+                        $latestMeasurement = null;
+                        if (! empty($weeklyData)) {
+                            // Sort by datetime descending to get the latest
+                            usort($weeklyData, function ($a, $b) {
+                                return strtotime($b['datetime'] ?? '1970-01-01') <=> strtotime($a['datetime'] ?? '1970-01-01');
+                            });
+                            $latestMeasurement = $weeklyData[0];
+                        }
+
+                        // Add current measurement if latest is not from today
+                        $today = Carbon::now()->toDateString();
+                        $latestDate = isset($latestMeasurement['datetime'])
+                            ? Carbon::parse($latestMeasurement['datetime'])->toDateString()
+                            : null;
+
+                        if ($latestDate !== $today) {
+                            // Add current measurement and keep only last 7 entries
+                            array_unshift($weeklyData, [
+                                'datetime' => Carbon::now()->toISOString(),
+                                'level' => $currentLevel,
+                            ]);
+
+                            // Keep only the most recent 7 measurements
+                            $weeklyData = array_slice($weeklyData, 0, 7);
+                        }
+
                         $riverLevel->update([
-                            'current_water_level' => (float) $station['water_level'],
+                            'current_water_level' => $currentLevel,
                             'current_flow_rate' => ! empty($station['discharge']) ? (float) $station['discharge'] : $riverLevel->current_flow_rate,
                             'last_updated' => Carbon::now(),
+                            'weekly_data' => $weeklyData,
                         ]);
                     });
 
