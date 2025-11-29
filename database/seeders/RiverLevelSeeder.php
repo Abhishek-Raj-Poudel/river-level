@@ -89,6 +89,10 @@ class RiverLevelSeeder extends Seeder
      */
     private function determineStatus(float $current, float $normal): string
     {
+        if ($normal <= 0) {
+            return 'unknown';
+        }
+
         $ratio = $current / $normal;
 
         if ($ratio < 0.7) {

@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Models\RiverLevel;
+use Carbon\Carbon;
 use GuzzleHttp\Client;
-use Symfony\Component\DomCrawler\Crawler;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\DomCrawler\Crawler;
 
 class DhmScraperService
 {
@@ -40,10 +42,87 @@ class DhmScraperService
             });
 
             Log::info('Fetched DHM data successfully', ['count' => count($rows)]);
+
             return $rows;
         } catch (\Throwable $e) {
             Log::error('Error fetching DHM river data', ['message' => $e->getMessage()]);
+
             return [];
         }
+    }
+
+    /**
+     * Update RiverLevel records with scraped DHM data
+     * Matches records by district and station_name
+     */
+    public function updateRiverLevels(array $dhmData): array
+    {
+        $updated = 0;
+        $errors = [];
+
+        foreach ($dhmData as $station) {
+            try {
+                // Skip entries with missing required data
+                if (empty($station['district']) || empty($station['station_name']) || empty($station['water_level'])) {
+                    Log::warning('Skipping DHM data entry with missing required fields', [
+                        'district' => $station['district'] ?? 'missing',
+                        'station_name' => $station['station_name'] ?? 'missing',
+                        'water_level' => $station['water_level'] ?? 'missing',
+                    ]);
+
+                    continue;
+                }
+
+                // Find existing RiverLevel record by district and station_name
+                $riverLevel = RiverLevel::where('district', $station['district'])
+                    ->where('station_name', $station['station_name'])
+                    ->first();
+
+                if ($riverLevel) {
+                    // Update the record with scraped data (without triggering events)
+                    $riverLevel->withoutEvents(function () use ($riverLevel, $station) {
+                        $riverLevel->update([
+                            'current_water_level' => (float) $station['water_level'],
+                            'current_flow_rate' => ! empty($station['discharge']) ? (float) $station['discharge'] : $riverLevel->current_flow_rate,
+                            'last_updated' => Carbon::now(),
+                        ]);
+                    });
+
+                    Log::info('Updated river level from DHM data', [
+                        'district' => $station['district'],
+                        'station_name' => $station['station_name'],
+                        'water_level' => $station['water_level'],
+                        'discharge' => $station['discharge'] ?? 'unchanged',
+                    ]);
+
+                    $updated++;
+                } else {
+                    Log::warning('No matching RiverLevel record found for DHM data', [
+                        'district' => $station['district'],
+                        'station_name' => $station['station_name'],
+                    ]);
+                }
+            } catch (\Throwable $e) {
+                $error = [
+                    'district' => $station['district'] ?? 'unknown',
+                    'station_name' => $station['station_name'] ?? 'unknown',
+                    'error' => $e->getMessage(),
+                ];
+                $errors[] = $error;
+                Log::error('Error updating river level from DHM data', $error);
+            }
+        }
+
+        Log::info('DHM data update completed', [
+            'total_processed' => count($dhmData),
+            'updated' => $updated,
+            'errors' => count($errors),
+        ]);
+
+        return [
+            'updated' => $updated,
+            'errors' => $errors,
+            'total_processed' => count($dhmData),
+        ];
     }
 }
