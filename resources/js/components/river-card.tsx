@@ -4,7 +4,7 @@ import { getStatusColor, getStatusText } from '@/data/rivers';
 import { cn } from '@/lib/utils';
 import { River } from '@/types';
 import { Link } from '@inertiajs/react';
-import { ArrowRight, Droplets, Thermometer, TrendingUp } from 'lucide-react';
+import { ArrowRight, Droplets, Thermometer } from 'lucide-react';
 
 interface RiverCardProps {
     river: River;
@@ -45,21 +45,13 @@ export const RiverCard = ({ river }: RiverCardProps) => {
                         </div>
 
                         {/* Stats Grid */}
-                        <div className="mb-4 grid grid-cols-3 gap-4">
+                        <div className="mb-4 grid grid-cols-2 gap-4">
                             <div className="text-center">
                                 <div className="mb-1 flex items-center justify-center">
                                     <Droplets className="h-4 w-4 text-primary" />
                                 </div>
                                 <div className="text-lg font-semibold text-foreground">{river.current_water_level}m</div>
                                 <div className="text-xs text-muted-foreground">Water Level</div>
-                            </div>
-
-                            <div className="text-center">
-                                <div className="mb-1 flex items-center justify-center">
-                                    <TrendingUp className="h-4 w-4 text-accent" />
-                                </div>
-                                <div className="text-lg font-semibold text-foreground">{river.current_flow_rate.toLocaleString()}</div>
-                                <div className="text-xs text-muted-foreground">m³/s Flow</div>
                             </div>
 
                             <div className="text-center">

@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import { River } from '@/types';
 import { Filter, MapPin, Search, Waves } from 'lucide-react';
@@ -64,7 +64,7 @@ export const RiversList = ({ rivers }: RiversListProps) => {
                         <h1 className="text-4xl font-bold text-foreground md:text-5xl">River Monitor</h1>
                     </div>
                     <p className="mx-auto max-w-2xl text-xl text-muted-foreground">
-                        Monitoring of the Nepal's major rivers with water levels, flow rates, and environmental data
+                        Monitoring of Nepal's major rivers with water levels, temperature, and environmental data
                     </p>
                 </div>
 
@@ -86,10 +86,7 @@ export const RiversList = ({ rivers }: RiversListProps) => {
                             <MapPin className="h-4 w-4 text-muted-foreground" />
                             <span className="text-sm text-muted-foreground">Filter by district:</span>
                             <div className="w-[200px]">
-                                <Select
-                                    value={districtFilter || 'all'}
-                                    onValueChange={(value) => setDistrictFilter(value === 'all' ? null : value)}
-                                >
+                                <Select value={districtFilter || 'all'} onValueChange={(value) => setDistrictFilter(value === 'all' ? null : value)}>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select district" />
                                     </SelectTrigger>
@@ -120,7 +117,12 @@ export const RiversList = ({ rivers }: RiversListProps) => {
                             <span className="text-sm text-muted-foreground">Filter by status:</span>
                         </div>
 
-                        <Button variant={statusFilter === null ? 'default' : 'outline'} size="sm" onClick={() => setStatusFilter(null)} className="h-8">
+                        <Button
+                            variant={statusFilter === null ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setStatusFilter(null)}
+                            className="h-8"
+                        >
                             All ({rivers.length})
                         </Button>
 
