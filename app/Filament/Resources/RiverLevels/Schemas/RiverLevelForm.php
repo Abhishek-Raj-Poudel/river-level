@@ -41,11 +41,25 @@ class RiverLevelForm
                             ->placeholder('e.g., Kathmandu')
                             ->columnSpan(1),
 
+                        TextInput::make('contact_number')
+                            ->label('Contact Number')
+                            ->tel()
+                            ->placeholder('e.g., +977-1-234567')
+                            ->maxLength(20)
+                            ->columnSpan(1),
+
                         TextInput::make('scrape_link')
                             ->label('Scrape Link')
                             ->url()
                             ->placeholder('https://example.com/scrape-data')
                             ->columnSpan(1),
+
+                        Textarea::make('nearby_landmark')
+                            ->label('Nearby Landmark')
+                            ->placeholder('e.g., Near Kathmandu Durbar Square, 2km from Ring Road')
+                            ->rows(2)
+                            ->maxLength(500)
+                            ->columnSpanFull(),
 
                         Select::make('continent')
                             ->required()

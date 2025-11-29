@@ -201,6 +201,23 @@ export default function RiverDetail({ river }: Props) {
                                 </p>
                             </div>
                             <div>
+                                <h4 className="mb-2 font-semibold text-foreground">Contact Information</h4>
+                                <p className="text-muted-foreground">
+                                    {river.contact_number ? (
+                                        <>
+                                            <strong>Phone:</strong> {river.contact_number}
+                                            <br />
+                                        </>
+                                    ) : (
+                                        'No contact information available'
+                                    )}
+                                </p>
+                            </div>
+                            <div className="md:col-span-2">
+                                <h4 className="mb-2 font-semibold text-foreground">Nearby Landmarks</h4>
+                                <p className="text-muted-foreground">{river.nearby_landmark || 'No nearby landmarks specified'}</p>
+                            </div>
+                            <div className="md:col-span-2">
                                 <h4 className="mb-2 font-semibold text-foreground">Status Details</h4>
                                 <p className="text-muted-foreground">
                                     Current level is {((river.current_water_level / river.normal_water_level) * 100).toFixed(1)}% of normal levels.

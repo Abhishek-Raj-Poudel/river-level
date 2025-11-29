@@ -23,6 +23,8 @@ class RiverLevel extends Model
         'name',
         'station_name',
         'district',
+        'contact_number',
+        'nearby_landmark',
         'scrape_link',
         'country',
         'continent',

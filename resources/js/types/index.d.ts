@@ -58,6 +58,8 @@ interface River {
     name: string;
     station_name?: string;
     district?: string;
+    contact_number?: string;
+    nearby_landmark?: string;
     scrape_link?: string;
     country: string;
     continent: string;
