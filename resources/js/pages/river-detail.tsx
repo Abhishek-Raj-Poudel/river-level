@@ -111,10 +111,10 @@ export default function RiverDetail({ river }: Props) {
                     <Card className="bg-gradient-card border-border/50 p-6">
                         <h3 className="mb-6 text-xl font-bold text-foreground">Weekly Water Levels</h3>
                         <ResponsiveContainer width="100%" height={300}>
-                            <AreaChart data={river.weekly_data}>
+                            <AreaChart data={river.recent_measurements || []}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
                                 <XAxis
-                                    dataKey="datetime"
+                                    dataKey="measured_at"
                                     stroke="white"
                                     tick={{ fill: 'white' }}
                                     fontSize={12}
@@ -130,7 +130,7 @@ export default function RiverDetail({ river }: Props) {
                                     }}
                                     labelFormatter={(value) => new Date(value).toLocaleString()}
                                 />
-                                <Area type="monotone" dataKey="level" stroke="#3b82f6" fill="#3b82f680" strokeWidth={2} />
+                                <Area type="monotone" dataKey="water_level" stroke="#3b82f6" fill="#3b82f680" strokeWidth={2} />
                             </AreaChart>
                         </ResponsiveContainer>
                     </Card>

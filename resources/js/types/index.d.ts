@@ -43,6 +43,15 @@ export interface User {
     [key: string]: unknown; // This allows for additional properties...
 }
 
+interface RiverMeasurement {
+    id: number;
+    river_level_id: string;
+    water_level: number;
+    measured_at: string;
+    created_at: string;
+    updated_at: string;
+}
+
 interface River {
     id: string;
     slug: string;
@@ -65,10 +74,7 @@ interface River {
 
     description: string;
     last_updated: string;
-    weekly_data: Array<{
-        datetime: string;
-        level: number;
-    }>;
+    recent_measurements?: RiverMeasurement[];
 }
 
 interface RiverNew {

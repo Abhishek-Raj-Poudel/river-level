@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\RiverLevel;
+use App\Models\RiverMeasurement;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
@@ -87,40 +88,31 @@ class DhmScraperService
                     // Update the record with scraped data (without triggering events)
                     $riverLevel->withoutEvents(function () use ($riverLevel, $station) {
                         $currentLevel = (float) $station['water_level'];
-                        $weeklyData = $riverLevel->weekly_data ?? [];
 
-                        // Check if we need to add current measurement to weekly data
-                        $latestMeasurement = null;
-                        if (! empty($weeklyData)) {
-                            // Sort by datetime descending to get the latest
-                            usort($weeklyData, function ($a, $b) {
-                                return strtotime($b['datetime'] ?? '1970-01-01') <=> strtotime($a['datetime'] ?? '1970-01-01');
-                            });
-                            $latestMeasurement = $weeklyData[0];
-                        }
-
-                        // Add current measurement if latest is not from today
+                        // Check if we already have a measurement for today
                         $today = Carbon::now()->toDateString();
-                        $latestDate = isset($latestMeasurement['datetime'])
-                            ? Carbon::parse($latestMeasurement['datetime'])->toDateString()
-                            : null;
+                        $existingMeasurement = RiverMeasurement::where('river_level_id', $riverLevel->id)
+                            ->whereDate('measured_at', $today)
+                            ->first();
 
-                        if ($latestDate !== $today) {
-                            // Add current measurement and keep only last 7 entries
-                            array_unshift($weeklyData, [
-                                'datetime' => Carbon::now()->toISOString(),
-                                'level' => $currentLevel,
+                        // Only add measurement if we don't have one for today
+                        if (! $existingMeasurement) {
+                            RiverMeasurement::create([
+                                'river_level_id' => $riverLevel->id,
+                                'water_level' => $currentLevel,
+                                'measured_at' => Carbon::now(),
                             ]);
 
-                            // Keep only the most recent 7 measurements
-                            $weeklyData = array_slice($weeklyData, 0, 7);
+                            // Clean up old measurements (keep only last 30 days)
+                            RiverMeasurement::where('river_level_id', $riverLevel->id)
+                                ->where('measured_at', '<', Carbon::now()->subDays(30))
+                                ->delete();
                         }
 
                         $riverLevel->update([
                             'current_water_level' => $currentLevel,
                             'current_flow_rate' => ! empty($station['discharge']) ? (float) $station['discharge'] : $riverLevel->current_flow_rate,
                             'last_updated' => Carbon::now(),
-                            'weekly_data' => $weeklyData,
                         ]);
                     });
 

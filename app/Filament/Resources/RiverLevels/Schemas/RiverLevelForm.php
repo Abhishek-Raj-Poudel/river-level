@@ -3,7 +3,6 @@
 namespace App\Filament\Resources\RiverLevels\Schemas;
 
 use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 /* use Filament\Forms\Components\Section; */
@@ -167,39 +166,6 @@ class RiverLevelForm
                     ->columnSpan(3)
                     ->collapsible(),
 
-                ComponentsSection::make('Weekly Measurements')
-                    ->description('Historical data for the past week')
-                    ->icon('heroicon-o-calendar-days')
-                    ->schema([
-                        Repeater::make('weekly_data')
-                            ->label('')
-                            ->schema([
-                                DateTimePicker::make('datetime')
-                                    ->label('Date & Time')
-                                    ->required()
-                                    ->native(false)
-                                    ->seconds(false)
-                                    ->columnSpan(1),
-
-                                TextInput::make('level')
-                                    ->label('Water Level')
-                                    ->numeric()
-                                    ->required()
-                                    ->suffix('m')
-                                    ->extraAttributes(['step' => '0.01'])
-                                    ->minValue(0)
-                                    ->columnSpan(1),
-                            ])
-                            ->columns(2)
-                            ->defaultItems(0)
-                            ->addActionLabel('Add Measurement')
-                            ->collapsible()
-                            ->itemLabel(fn(array $state): ?string => isset($state['datetime']) ? \Carbon\Carbon::parse($state['datetime'])->format('M j, H:i') : null)
-                            ->reorderableWithButtons()
-                            ->cloneable(),
-                    ])
-                    ->columnSpan(3)
-                    ->collapsible(),
             ]);
     }
 }

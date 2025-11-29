@@ -70,7 +70,7 @@ class RiverController extends Controller
             ]);
         }
 
-        $rivers = RiverLevel::all();
+        $rivers = RiverLevel::with('recentMeasurements')->get();
 
         return Inertia::render('welcome', [
             'rivers' => $rivers,
@@ -113,7 +113,7 @@ class RiverController extends Controller
         }
 
         return Inertia::render('river', [
-            'river' => $river,
+            'river' => $river->load('recentMeasurements'),
         ]);
     }
 }

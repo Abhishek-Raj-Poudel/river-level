@@ -45,6 +45,22 @@ class RiverLevel extends Model
         'last_updated' => 'datetime',
     ];
 
+    /**
+     * Get the measurements for the river level.
+     */
+    public function measurements()
+    {
+        return $this->hasMany(RiverMeasurement::class)->orderBy('measured_at', 'desc');
+    }
+
+    /**
+     * Get recent measurements (last 7 days).
+     */
+    public function recentMeasurements()
+    {
+        return $this->measurements()->recent();
+    }
+
     public function getRouteKeyName()
     {
         return 'slug';
