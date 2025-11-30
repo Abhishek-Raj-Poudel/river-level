@@ -23,6 +23,7 @@ class User extends Authenticatable
         'password',
         'lat',
         'lng',
+        'contact_number',
     ];
 
     /**

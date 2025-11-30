@@ -35,6 +35,13 @@ class UserForm
                             ->maxLength(255)
                             ->columnSpan(1),
 
+                        TextInput::make('contact_number')
+                            ->label('Contact Number')
+                            ->tel()
+                            ->maxLength(20)
+                            ->placeholder('e.g., +1 (555) 123-4567')
+                            ->columnSpan(1),
+
                         TextInput::make('password')
                             ->label('Password')
                             ->password()

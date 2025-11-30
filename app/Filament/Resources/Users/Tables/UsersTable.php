@@ -29,6 +29,15 @@ class UsersTable
                     ->copyMessage('Email address copied')
                     ->copyMessageDuration(1500),
 
+                TextColumn::make('contact_number')
+                    ->label('Contact Number')
+                    ->searchable()
+                    ->sortable()
+                    ->copyable()
+                    ->copyMessage('Contact number copied')
+                    ->copyMessageDuration(1500)
+                    ->toggleable(),
+
                 IconColumn::make('email_verified_at')
                     ->label('Verified')
                     ->boolean()
