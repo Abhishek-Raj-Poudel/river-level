@@ -54,6 +54,20 @@ class RiverLevelForm
                             ->placeholder('https://example.com/scrape-data')
                             ->columnSpan(1),
 
+                        TextInput::make('station_link')
+                            ->label('Station Link')
+                            ->url()
+                            ->placeholder('https://dhm.gov.np/hydrology/hms-Single/50')
+                            ->columnSpan(1),
+
+                        TextInput::make('elevation')
+                            ->label('Elevation')
+                            ->numeric()
+                            ->suffix('m')
+                            ->extraAttributes(['step' => '0.01'])
+                            ->minValue(0)
+                            ->columnSpan(1),
+
                         Textarea::make('nearby_landmark')
                             ->label('Nearby Landmark')
                             ->placeholder('e.g., Near Kathmandu Durbar Square, 2km from Ring Road')

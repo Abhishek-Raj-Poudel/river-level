@@ -61,6 +61,8 @@ interface River {
     contact_number?: string;
     nearby_landmark?: string;
     scrape_link?: string;
+    elevation?: number | null;
+    station_link?: string | null;
     country: string;
     continent: string;
     length: number; // in kilometers
@@ -84,7 +86,9 @@ interface RiverNew {
     basin: string;
     discharge: string;
     district: string;
+    elevation?: string | null;
     station_index: string;
+    station_link?: string | null;
     station_name: string;
     water_level: string;
 }

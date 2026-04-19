@@ -4,7 +4,7 @@ import { getStatusColor, getStatusText } from '@/data/rivers';
 import { cn } from '@/lib/utils';
 import { River } from '@/types';
 import { Link } from '@inertiajs/react';
-import { ArrowRight, Droplets, Thermometer } from 'lucide-react';
+import { ArrowRight, Droplets, Mountain, Thermometer } from 'lucide-react';
 
 interface RiverCardProps {
     river: River;
@@ -45,7 +45,7 @@ export const RiverCard = ({ river }: RiverCardProps) => {
                         </div>
 
                         {/* Stats Grid */}
-                        <div className="mb-4 grid grid-cols-2 gap-4">
+                        <div className="mb-4 grid grid-cols-3 gap-4">
                             <div className="text-center">
                                 <div className="mb-1 flex items-center justify-center">
                                     <Droplets className="h-4 w-4 text-primary" />
@@ -60,6 +60,16 @@ export const RiverCard = ({ river }: RiverCardProps) => {
                                 </div>
                                 <div className="text-lg font-semibold text-foreground">{river.temperature}°C</div>
                                 <div className="text-xs text-muted-foreground">Temperature</div>
+                            </div>
+
+                            <div className="text-center">
+                                <div className="mb-1 flex items-center justify-center">
+                                    <Mountain className="h-4 w-4 text-secondary-foreground" />
+                                </div>
+                                <div className="text-lg font-semibold text-foreground">
+                                    {river.elevation !== null && river.elevation !== undefined ? `${river.elevation}m` : 'N/A'}
+                                </div>
+                                <div className="text-xs text-muted-foreground">Elevation</div>
                             </div>
                         </div>
 

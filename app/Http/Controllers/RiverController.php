@@ -79,35 +79,49 @@ class RiverController extends Controller
 
     public function show(RiverLevel $river)
     {
-        // If the river has a specific scrape link, fetch data from that URL
-        if (! empty($river->scrape_link)) {
+        $shouldScrapeElevation = $river->elevation === null
+            && ! empty($river->station_link)
+            && ($river->elevation_checked_at === null || $river->elevation_checked_at->lt(now()->subDay()));
+
+        if ($shouldScrapeElevation) {
             $scraper = new DhmScraperService;
 
-            Log::info('Fetching data for specific river', [
+            Log::info('Fetching station details for river page', [
                 'river_id' => $river->id,
                 'river_name' => $river->name,
-                'scrape_link' => $river->scrape_link,
+                'station_link' => $river->station_link,
             ]);
 
-            $specificData = $scraper->fetch($river->scrape_link);
+            $stationDetails = $scraper->fetchStationDetails($river->station_link);
 
-            if (! empty($specificData)) {
+            if ($stationDetails['elevation'] !== null) {
                 try {
-                    // Update this specific river with the scraped data
-                    $updateResult = $scraper->updateRiverLevels($specificData);
-                    Log::info('Updated specific river from custom scrape link', [
-                        'river_id' => $river->id,
-                        'updates' => $updateResult,
+                    $river->update([
+                        'elevation' => $stationDetails['elevation'],
+                        'elevation_checked_at' => now(),
                     ]);
 
-                    // Refresh the river data
+                    Log::info('Updated river elevation from station page', [
+                        'river_id' => $river->id,
+                        'elevation' => $stationDetails['elevation'],
+                    ]);
+
                     $river->refresh();
                 } catch (\Throwable $e) {
-                    Log::error('Failed to update river from custom scrape link', [
+                    Log::error('Failed to update river elevation from station page', [
                         'river_id' => $river->id,
                         'error' => $e->getMessage(),
                     ]);
                 }
+            } else {
+                $river->update([
+                    'elevation_checked_at' => now(),
+                ]);
+
+                Log::info('No elevation found on station page', [
+                    'river_id' => $river->id,
+                    'station_link' => $river->station_link,
+                ]);
             }
         }
 

@@ -18,8 +18,17 @@ class RiverLevelsTable
                     ->searchable(),
                 TextColumn::make('station_name')
                     ->searchable(),
+                TextColumn::make('station_link')
+                    ->label('Station Link')
+                    ->url(fn ($record) => $record->station_link)
+                    ->openUrlInNewTab()
+                    ->toggleable(),
                 TextColumn::make('country')
                     ->searchable(),
+                TextColumn::make('elevation')
+                    ->numeric(decimalPlaces: 2)
+                    ->suffix(' m')
+                    ->sortable(),
                 TextColumn::make('status')
                     ->searchable(),
                 TextColumn::make('current_water_level')

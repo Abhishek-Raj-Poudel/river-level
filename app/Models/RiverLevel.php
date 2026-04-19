@@ -26,6 +26,9 @@ class RiverLevel extends Model
         'contact_number',
         'nearby_landmark',
         'scrape_link',
+        'elevation',
+        'elevation_checked_at',
+        'station_link',
         'country',
         'continent',
         'length',
@@ -43,6 +46,8 @@ class RiverLevel extends Model
 
     protected $casts = [
         'last_updated' => 'datetime',
+        'elevation' => 'float',
+        'elevation_checked_at' => 'datetime',
     ];
 
     /**

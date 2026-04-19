@@ -5,7 +5,7 @@ import { getStatusColor, getStatusText } from '@/data/rivers';
 import { cn } from '@/lib/utils';
 import { River } from '@/types';
 import { Head, router } from '@inertiajs/react';
-import { Activity, ArrowLeft, Calendar, Droplets, MapPin, Thermometer } from 'lucide-react';
+import { Activity, ArrowLeft, Calendar, Droplets, ExternalLink, MapPin, Thermometer } from 'lucide-react';
 import { lazy, Suspense } from 'react';
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
@@ -198,6 +198,26 @@ export default function RiverDetail({ river }: Props) {
                                 <p className="text-muted-foreground">
                                     Latitude: {river.lat}°<br />
                                     Longitude: {river.lng}°
+                                </p>
+                            </div>
+                            <div>
+                                <h4 className="mb-2 font-semibold text-foreground">Station Data</h4>
+                                <p className="text-muted-foreground">
+                                    Elevation: {river.elevation !== null && river.elevation !== undefined ? `${river.elevation} m` : 'Not available'}
+                                    <br />
+                                    {river.station_link ? (
+                                        <a
+                                            href={river.station_link}
+                                            target="_blank"
+                                            rel="noreferrer"
+                                            className="inline-flex items-center gap-1 text-primary hover:underline"
+                                        >
+                                            Open station page
+                                            <ExternalLink className="h-3.5 w-3.5" />
+                                        </a>
+                                    ) : (
+                                        'Station link not available'
+                                    )}
                                 </p>
                             </div>
                             <div>

@@ -1,0 +1,87 @@
+services:
+  mysql:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: river_level
+      MYSQL_USER: river_level
+      MYSQL_PASSWORD: river_level
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - river_level_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 20s
+
+  app:
+    build:
+      context: .
+      args:
+        VITE_APP_NAME: River Level
+        VITE_REVERB_APP_KEY: river-level-app-key
+        VITE_REVERB_HOST: localhost
+        VITE_REVERB_PORT: 8080
+        VITE_REVERB_SCHEME: http
+    image: river-level-app:latest
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+    ports:
+      - "8000:8000"
+    environment:
+      APP_URL: http://localhost:8000
+      RUN_MIGRATIONS: "true"
+      REVERB_HOST: reverb
+    volumes:
+      - river_level_storage:/var/www/html/storage/app
+      - river_level_logs:/var/www/html/storage/logs
+    command: ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]
+
+  queue:
+    image: river-level-app:latest
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_started
+      mysql:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+    environment:
+      APP_URL: http://app:8000
+      REVERB_HOST: reverb
+    volumes:
+      - river_level_storage:/var/www/html/storage/app
+      - river_level_logs:/var/www/html/storage/logs
+    command: ["php", "artisan", "queue:work", "--verbose", "--tries=3", "--timeout=90"]
+
+  reverb:
+    image: river-level-app:latest
+    restart: unless-stopped
+    depends_on:
+      app:
+        condition: service_started
+      mysql:
+        condition: service_healthy
+    env_file:
+      - .env.docker
+    ports:
+      - "8080:8080"
+    environment:
+      APP_URL: http://app:8000
+      REVERB_HOST: reverb
+    volumes:
+      - river_level_storage:/var/www/html/storage/app
+      - river_level_logs:/var/www/html/storage/logs
+    command: ["php", "artisan", "reverb:start", "--host=0.0.0.0", "--port=8080"]
+
+volumes:
+  river_level_mysql:
+  river_level_storage:
+  river_level_logs:

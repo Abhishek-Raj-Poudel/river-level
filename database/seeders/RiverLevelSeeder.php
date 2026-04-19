@@ -43,6 +43,8 @@ class RiverLevelSeeder extends Seeder
                 'name' => $station['basin'], // Basin is used as river name
                 'station_name' => $station['station_name'], // Station name from DHM
                 'district' => $station['district'] ?? null, // District from DHM
+                'elevation' => isset($station['elevation']) && is_numeric($station['elevation']) ? (float) $station['elevation'] : null,
+                'station_link' => $station['station_link'] ?? null,
                 'country' => 'Nepal',
                 'continent' => 'Asia',
                 'length' => rand(50, 1000), // Dummy length in km

@@ -5,6 +5,8 @@ import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 
+const enableWayfinder = process.env.VITE_ENABLE_WAYFINDER !== 'false';
+
 export default defineConfig({
     plugins: [
         laravel({
@@ -14,7 +16,7 @@ export default defineConfig({
         }),
         react(),
         tailwindcss(),
-        wayfinder(),
+        ...(enableWayfinder ? [wayfinder()] : []),
         VitePWA({
             registerType: 'autoUpdate',
             includeAssets: ['**/*.{png,svg,ico,webmanifest}'],
