@@ -22,13 +22,13 @@ class RiverController extends Controller
         $dhmData = Cache::remember($cacheKey, $cacheDuration, function () use ($scraper) {
             Log::info('Fetching fresh DHM data (cache expired or missing)');
 
-            $data = $scraper->fetch();
+            $data = $scraper->fetchLiveData('river_test');
 
             Log::info('DHM Scraper called in RiverController::index', [
                 'timestamp' => now()->toISOString(),
                 'data_count' => count($data),
                 'sample_data' => array_slice($data, 0, 3), // Log first 3 records as sample
-                'url' => 'https://dhm.gov.np/hydrology/realtime-stream',
+                'url' => 'https://hydrology.gov.np/#/river_watch',
                 'cached' => false,
             ]);
 
@@ -49,7 +49,7 @@ class RiverController extends Controller
         if (! $isFromCache || ! Cache::has($updateCacheKey) || Cache::get($updateCacheKey) < now()->subMinutes(15)) {
             if (! empty($dhmData)) {
                 try {
-                    $updateResult = $scraper->updateRiverLevels($dhmData);
+                    $updateResult = $scraper->updateOrCreateRiverLevels($dhmData);
                     Log::info('River levels updated from DHM data', $updateResult);
 
                     // Cache the update timestamp
@@ -79,52 +79,6 @@ class RiverController extends Controller
 
     public function show(RiverLevel $river)
     {
-        $shouldScrapeElevation = $river->elevation === null
-            && ! empty($river->station_link)
-            && ($river->elevation_checked_at === null || $river->elevation_checked_at->lt(now()->subDay()));
-
-        if ($shouldScrapeElevation) {
-            $scraper = new DhmScraperService;
-
-            Log::info('Fetching station details for river page', [
-                'river_id' => $river->id,
-                'river_name' => $river->name,
-                'station_link' => $river->station_link,
-            ]);
-
-            $stationDetails = $scraper->fetchStationDetails($river->station_link);
-
-            if ($stationDetails['elevation'] !== null) {
-                try {
-                    $river->update([
-                        'elevation' => $stationDetails['elevation'],
-                        'elevation_checked_at' => now(),
-                    ]);
-
-                    Log::info('Updated river elevation from station page', [
-                        'river_id' => $river->id,
-                        'elevation' => $stationDetails['elevation'],
-                    ]);
-
-                    $river->refresh();
-                } catch (\Throwable $e) {
-                    Log::error('Failed to update river elevation from station page', [
-                        'river_id' => $river->id,
-                        'error' => $e->getMessage(),
-                    ]);
-                }
-            } else {
-                $river->update([
-                    'elevation_checked_at' => now(),
-                ]);
-
-                Log::info('No elevation found on station page', [
-                    'river_id' => $river->id,
-                    'station_link' => $river->station_link,
-                ]);
-            }
-        }
-
         return Inertia::render('river', [
             'river' => $river->load('recentMeasurements'),
         ]);

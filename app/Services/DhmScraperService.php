@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\RiverLevel;
 use App\Models\RiverMeasurement;
 use Carbon\Carbon;
+use ElephantIO\Client as ElephantClient;
+use ElephantIO\Engine\SocketIO\Version4X;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -12,8 +14,8 @@ use Symfony\Component\DomCrawler\Crawler;
 
 class DhmScraperService
 {
-    protected string $url = 'https://dhm.gov.np/hydrology/realtime-stream';
-    /* protected string $url = 'https://hydrology.gov.np/#/river_watch?_k=pprrmt'; */
+    /* protected string $url = 'https://dhm.gov.np/hydrology/realtime-stream'; */
+    protected string $url = 'https://hydrology.gov.np/#/river_watch?_k=pprrmt';
 
     public function fetch(?string $url = null)
     {
@@ -99,6 +101,165 @@ class DhmScraperService
     }
 
     /**
+     * Fetch live river data via Socket.IO from hydrology.gov.np.
+     *
+     * The site renders data client-side over a Socket.IO v4 connection
+     * (path /gss/socket.io). On connect we emit `client_request` with the
+     * desired channel; the server then pushes the payload on a matching event.
+     *
+     * @param  string  $channel  One of: river_test (water levels), rainfall_watch, river_discharge
+     * @return array<int, array<string, mixed>> Rows shaped like fetch() for updateRiverLevels()
+     */
+    public function fetchLiveData(string $channel = 'river_test'): array
+    {
+        try {
+            Log::info('Fetching live DHM river data via Socket.IO', ['channel' => $channel]);
+
+            $client = new ElephantClient(new Version4X('https://hydrology.gov.np', [
+                'sio_path' => 'gss/socket.io',
+                'version' => 4,
+                'timeout' => 10,
+                'transports' => ['websocket'],
+                'transport' => 'websocket',
+            ]));
+
+            $client->connect();
+            $client->emit('client_request', $channel);
+
+            $rows = [];
+            $start = microtime(true);
+
+            while (microtime(true) - $start < 15) {
+                $packet = $client->wait(null, 3);
+
+                if ($packet === null) {
+                    continue;
+                }
+
+                $event = is_array($packet->event)
+                    ? ($packet->event[0] ?? null)
+                    : $packet->event;
+
+                if ($event !== $channel) {
+                    continue;
+                }
+
+                foreach ((array) ($packet->data ?? []) as $item) {
+                    if (is_array($item)) {
+                        $rows[] = $this->mapLiveStation($item);
+                    }
+                }
+
+                break;
+            }
+
+            $client->disconnect();
+
+            Log::info('Fetched live DHM data successfully', [
+                'channel' => $channel,
+                'count' => count($rows),
+            ]);
+
+            return $rows;
+        } catch (\Throwable $e) {
+            Log::error('Error fetching live DHM river data', [
+                'message' => $e->getMessage(),
+                'channel' => $channel,
+            ]);
+
+            return [];
+        }
+    }
+
+    /**
+     * Normalize a single Socket.IO station payload into the row shape
+     * consumed by updateRiverLevels().
+     */
+    protected function mapLiveStation(array $item): array
+    {
+        $waterLevel = $item['waterLevel']['value'] ?? null;
+
+        $station = [
+            'index' => $item['id'] ?? null,
+            'basin' => $item['basin'] ?? null,
+            'station_index' => $item['stationIndex'] ?? null,
+            'station_name' => trim((string) ($item['name'] ?? '')),
+            'district' => trim((string) ($item['district'] ?? '')),
+            'water_level' => $waterLevel !== null ? (string) $waterLevel : '',
+            'discharge' => null,
+            'station_link' => null,
+            'elevation' => $item['elevation'] ?? null,
+            'warning_level' => $item['warning_level'] ?? null,
+            'danger_level' => $item['danger_level'] ?? null,
+            'status' => $item['status'] ?? null,
+            'lat' => $item['latitude'] ?? null,
+            'lng' => $item['longitude'] ?? null,
+        ];
+
+        $station['status'] = $this->mapStatus(
+            $station['status'],
+            $waterLevel !== null ? (float) $waterLevel : 0.0,
+            $station['warning_level'],
+        );
+
+        return $station;
+    }
+
+    /**
+     * Map the raw DHM status string to the frontend status enum
+     * (low | normal | high | critical). Falls back to a threshold
+     * comparison against the warning level when the label is missing.
+     */
+    protected function mapStatus(?string $raw, float $level, mixed $warningLevel = null): string
+    {
+        $label = strtoupper((string) $raw);
+
+        if (str_contains($label, 'DANGER') || str_contains($label, 'CRITICAL')) {
+            return 'critical';
+        }
+
+        // "BELOW WARNING LEVEL" must be normal, not high — check BELOW/NORMAL first.
+        if (str_contains($label, 'BELOW') || str_contains($label, 'NORMAL')) {
+            return 'normal';
+        }
+
+        if (str_contains($label, 'ABOVE') || str_contains($label, 'WARNING')) {
+            return 'high';
+        }
+
+        if (str_contains($label, 'LOW')) {
+            return 'low';
+        }
+
+        if (is_numeric($warningLevel) && $level > (float) $warningLevel) {
+            return 'high';
+        }
+
+        return 'normal';
+    }
+
+    /**
+     * A water level is only usable when it is a real, finite value. The DHM
+     * feed reports "-9999" / "-9999977" (and sometimes empty strings) for
+     * stations without data, which would otherwise overflow the measurements
+     * decimal column or corrupt readings.
+     */
+    protected function isValidWaterLevel(mixed $value): bool
+    {
+        if ($value === null || $value === '' || $value === '-') {
+            return false;
+        }
+
+        if (! is_numeric($value)) {
+            return false;
+        }
+
+        $level = (float) $value;
+
+        return $level >= -100 && $level <= 999999;
+    }
+
+    /**
      * Update RiverLevel records with scraped DHM data
      * Matches records by district and station_name
      */
@@ -109,8 +270,8 @@ class DhmScraperService
 
         foreach ($dhmData as $station) {
             try {
-                // Skip entries with missing required data
-                if (empty($station['district']) || empty($station['station_name']) || empty($station['water_level'])) {
+                // Skip entries with missing required data or invalid water levels
+                if (empty($station['district']) || empty($station['station_name']) || ! $this->isValidWaterLevel($station['water_level'] ?? null)) {
                     Log::warning('Skipping DHM data entry with missing required fields', [
                         'district' => $station['district'] ?? 'missing',
                         'station_name' => $station['station_name'] ?? 'missing',
@@ -125,54 +286,28 @@ class DhmScraperService
                     ->where('station_name', $station['station_name'])
                     ->first();
 
-                if ($riverLevel) {
-                    // Update the record with scraped data (without triggering events)
-                    $riverLevel->withoutEvents(function () use ($riverLevel, $station) {
-                        $currentLevel = (float) $station['water_level'];
-
-                        // Check if we already have a measurement for today
-                        $today = Carbon::now()->toDateString();
-                        $existingMeasurement = RiverMeasurement::where('river_level_id', $riverLevel->id)
-                            ->whereDate('measured_at', $today)
-                            ->first();
-
-                        // Only add measurement if we don't have one for today
-                        if (! $existingMeasurement) {
-                            RiverMeasurement::create([
-                                'river_level_id' => $riverLevel->id,
-                                'water_level' => $currentLevel,
-                                'measured_at' => Carbon::now(),
-                            ]);
-
-                            // Clean up old measurements (keep only last 30 days)
-                            RiverMeasurement::where('river_level_id', $riverLevel->id)
-                                ->where('measured_at', '<', Carbon::now()->subDays(30))
-                                ->delete();
-                        }
-
-                        $riverLevel->update([
-                            'current_water_level' => $currentLevel,
-                            'current_flow_rate' => ! empty($station['discharge']) ? (float) $station['discharge'] : $riverLevel->current_flow_rate,
-                            'elevation' => isset($station['elevation']) && is_numeric($station['elevation']) ? (float) $station['elevation'] : $riverLevel->elevation,
-                            'station_link' => $station['station_link'] ?? $riverLevel->station_link,
-                            'last_updated' => Carbon::now(),
-                        ]);
-                    });
-
-                    Log::info('Updated river level from DHM data', [
-                        'district' => $station['district'],
-                        'station_name' => $station['station_name'],
-                        'water_level' => $station['water_level'],
-                        'discharge' => $station['discharge'] ?? 'unchanged',
-                    ]);
-
-                    $updated++;
-                } else {
+                if (! $riverLevel) {
                     Log::warning('No matching RiverLevel record found for DHM data', [
                         'district' => $station['district'],
                         'station_name' => $station['station_name'],
                     ]);
+
+                    continue;
                 }
+
+                // Update the record with scraped data (without triggering events)
+                $riverLevel->withoutEvents(function () use ($riverLevel, $station) {
+                    $this->applyLiveMeasurement($riverLevel, $station, (float) $station['water_level']);
+                });
+
+                Log::info('Updated river level from DHM data', [
+                    'district' => $station['district'],
+                    'station_name' => $station['station_name'],
+                    'water_level' => $station['water_level'],
+                    'discharge' => $station['discharge'] ?? 'unchanged',
+                ]);
+
+                $updated++;
             } catch (\Throwable $e) {
                 $error = [
                     'district' => $station['district'] ?? 'unknown',
@@ -194,6 +329,147 @@ class DhmScraperService
             'updated' => $updated,
             'errors' => $errors,
             'total_processed' => count($dhmData),
+        ];
+    }
+
+    /**
+     * Apply a live measurement to an existing RiverLevel.
+     *
+     * Creates today's measurement if missing (pruning older than 30 days) and
+     * updates the current level, flow rate, elevation, link and timestamp.
+     * Must be called inside a withoutEvents() closure to avoid alert spam.
+     */
+    protected function applyLiveMeasurement(RiverLevel $riverLevel, array $station, float $currentLevel): void
+    {
+        $today = Carbon::now()->toDateString();
+        $existingMeasurement = RiverMeasurement::where('river_level_id', $riverLevel->id)
+            ->whereDate('measured_at', $today)
+            ->first();
+
+        if (! $existingMeasurement) {
+            RiverMeasurement::create([
+                'river_level_id' => $riverLevel->id,
+                'water_level' => $currentLevel,
+                'measured_at' => Carbon::now(),
+            ]);
+
+            RiverMeasurement::where('river_level_id', $riverLevel->id)
+                ->where('measured_at', '<', Carbon::now()->subDays(30))
+                ->delete();
+        }
+
+        $riverLevel->update([
+            'current_water_level' => $currentLevel,
+            'current_flow_rate' => ! empty($station['discharge']) ? (float) $station['discharge'] : $riverLevel->current_flow_rate,
+            'elevation' => isset($station['elevation']) && is_numeric($station['elevation']) ? (float) $station['elevation'] : $riverLevel->elevation,
+            'station_link' => $station['station_link'] ?? $riverLevel->station_link,
+            'status' => ! empty($station['status']) ? $station['status'] : $riverLevel->status,
+            'normal_water_level' => isset($station['warning_level']) && is_numeric($station['warning_level']) ? (float) $station['warning_level'] : $riverLevel->normal_water_level,
+            'last_updated' => Carbon::now(),
+        ]);
+    }
+
+    /**
+     * Fetch live data and update-or-create RiverLevel records.
+     *
+     * Unlike updateRiverLevels(), this creates a new RiverLevel when no match
+     * is found by district + station_name. Intended for one-time live dumps
+     * where the river_levels table may not be pre-seeded.
+     *
+     * @param  array<int, array<string, mixed>>  $rows
+     * @return array{updated: int, created: int, errors: array, total_processed: int}
+     */
+    public function updateOrCreateRiverLevels(array $rows): array
+    {
+        $updated = 0;
+        $created = 0;
+        $errors = [];
+
+        foreach ($rows as $station) {
+            try {
+                if (empty($station['district']) || empty($station['station_name']) || ! $this->isValidWaterLevel($station['water_level'] ?? null)) {
+                    Log::warning('Skipping live data entry with missing required fields', [
+                        'district' => $station['district'] ?? 'missing',
+                        'station_name' => $station['station_name'] ?? 'missing',
+                        'water_level' => $station['water_level'] ?? 'missing',
+                    ]);
+
+                    continue;
+                }
+
+                $currentLevel = (float) $station['water_level'];
+
+                $riverLevel = RiverLevel::where('district', $station['district'])
+                    ->where('station_name', $station['station_name'])
+                    ->first();
+
+                if ($riverLevel) {
+                    $riverLevel->withoutEvents(function () use ($riverLevel, $station, $currentLevel) {
+                        $this->applyLiveMeasurement($riverLevel, $station, $currentLevel);
+                    });
+
+                    $updated++;
+
+                    continue;
+                }
+
+                // No match: create a new RiverLevel (suppress events to avoid alert spam).
+                // withoutEvents() also disables the model's creating callback, so we
+                // generate the UUID id/slug manually here. The base table has several
+                // NOT NULL columns unrelated to live data, so we seed safe defaults.
+                RiverLevel::withoutEvents(function () use ($station, $currentLevel, &$created) {
+                    $river = RiverLevel::create([
+                        'id' => (string) Str::uuid(),
+                        'slug' => Str::slug($station['station_name']),
+                        'name' => $station['station_name'],
+                        'country' => 'Nepal',
+                        'continent' => 'Asia',
+                        'length' => 0,
+                        'current_water_level' => $currentLevel,
+                        'normal_water_level' => isset($station['warning_level']) && is_numeric($station['warning_level']) ? (float) $station['warning_level'] : 0,
+                        'current_flow_rate' => 0,
+                        'average_flow_rate' => 0,
+                        'temperature' => 0,
+                        'status' => $station['status'] ?? 'UNKNOWN',
+                        'lat' => $station['lat'] ?? 0,
+                        'lng' => $station['lng'] ?? 0,
+                        'description' => '',
+                        'weekly_data' => json_encode([]),
+                        'last_updated' => Carbon::now(),
+                        'station_name' => $station['station_name'],
+                        'district' => $station['district'],
+                        'basin' => $station['basin'] ?? null,
+                        'station_index' => $station['station_index'] ?? null,
+                        'warning_level' => $station['warning_level'] ?? null,
+                        'danger_level' => $station['danger_level'] ? (float) $station['danger_level'] : null,
+                        'elevation' => isset($station['elevation']) && is_numeric($station['elevation']) ? (float) $station['elevation'] : null,
+                    ]);
+
+                    $this->applyLiveMeasurement($river, $station, $currentLevel);
+
+                    $created++;
+                });
+            } catch (\Throwable $e) {
+                $errors[] = [
+                    'district' => $station['district'] ?? 'unknown',
+                    'station_name' => $station['station_name'] ?? 'unknown',
+                    'error' => $e->getMessage(),
+                ];
+                Log::error('Error upserting live river level', end($errors));
+            }
+        }
+
+        Log::info('Live river level upsert completed', [
+            'updated' => $updated,
+            'created' => $created,
+            'errors' => count($errors),
+        ]);
+
+        return [
+            'updated' => $updated,
+            'created' => $created,
+            'errors' => $errors,
+            'total_processed' => count($rows),
         ];
     }
 
