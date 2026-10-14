@@ -96,9 +96,9 @@
     --sidebar-accent-foreground: #111111;
     --sidebar-border: #eaeaea;
     --sidebar-ring: #111111;
-
     --font-sans:
-        'SF Pro Display', 'Geist Sans', 'Switzer', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+        'Instrument Sans', 'SF Pro Display', 'Geist Sans', 'Switzer', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Helvetica Neue',
+        Arial, sans-serif;
     --font-serif: 'Lyon Text', 'Newsreader', 'Playfair Display', 'Instrument Serif', ui-serif, Georgia, Cambria, 'Times New Roman', serif;
     --font-mono: 'Geist Mono', 'SF Mono', 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }

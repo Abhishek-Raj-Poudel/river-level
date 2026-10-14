@@ -73,7 +73,7 @@ export const RiverCard = ({ river, index = 0 }: RiverCardProps) => {
                         </div>
 
                         <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
-                            <span className="font-mono text-xs text-muted-foreground">{river.length.toLocaleString()} km length</span>
+                            <span className="font-mono text-xs text-muted-foreground">{(river.length ?? 0).toLocaleString()} km length</span>
                             <ArrowRight
                                 size={15}
                                 weight="bold"

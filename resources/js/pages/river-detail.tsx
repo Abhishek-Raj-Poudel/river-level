@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { WelcomeNavbar } from '@/components/welcome-navbar';
 import { useReveal } from '@/hooks/use-reveal';
 import { statusBadgeClass, statusLabel } from '@/lib/status';
-import { cn } from '@/lib/utils';
+import { cn, safeFormat } from '@/lib/utils';
 import { River } from '@/types';
 import { Link } from '@inertiajs/react';
 import { ArrowLeft, ArrowSquareOut, CalendarBlank, Drop, MapPin, Mountains, Pulse, Ruler, Thermometer } from '@phosphor-icons/react';
@@ -35,7 +35,7 @@ export default function RiverDetail({ river }: Props) {
     const mapRef = useReveal<HTMLDivElement>();
     const infoRef = useReveal<HTMLDivElement>();
 
-    const lastUpdated = dateFormatter.format(new Date(river.last_updated));
+    const lastUpdated = safeFormat(dateFormatter, river.last_updated);
 
     const sortedMeasurements = [...(river.recent_measurements ?? [])].sort(
         (a, b) => new Date(a.measured_at).getTime() - new Date(b.measured_at).getTime(),
@@ -136,7 +136,7 @@ export default function RiverDetail({ river }: Props) {
                                 </div>
                                 <div className="mt-1 flex items-center gap-1.5 text-sm text-muted-foreground">
                                     <Ruler size={13} weight="bold" />
-                                    {river.length.toLocaleString()} km river length
+                                    {(river.length ?? 0).toLocaleString()} km river length
                                 </div>
                             </Card>
                         </div>
@@ -154,7 +154,7 @@ export default function RiverDetail({ river }: Props) {
                                             tick={{ fill: 'var(--muted-foreground)', fontSize: 11 }}
                                             tickLine={false}
                                             axisLine={false}
-                                            tickFormatter={(value) => chartDateFormatter.format(new Date(value))}
+                                            tickFormatter={(value) => safeFormat(chartDateFormatter, value)}
                                         />
                                         <YAxis
                                             stroke="var(--border)"
@@ -172,7 +172,7 @@ export default function RiverDetail({ river }: Props) {
                                                 color: 'var(--foreground)',
                                                 fontSize: '12px',
                                             }}
-                                            labelFormatter={(value) => dateFormatter.format(new Date(value))}
+                                            labelFormatter={(value) => safeFormat(dateFormatter, value)}
                                         />
                                         <Area
                                             type="monotone"

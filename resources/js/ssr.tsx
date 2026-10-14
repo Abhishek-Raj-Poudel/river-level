@@ -2,6 +2,7 @@ import { createInertiaApp } from '@inertiajs/react';
 import createServer from '@inertiajs/react/server';
 import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import ReactDOMServer from 'react-dom/server';
+import { ErrorBoundary } from './components/error-boundary';
 
 const appName = import.meta.env.VITE_APP_NAME || 'River Watch';
 
@@ -12,7 +13,11 @@ createServer((page) =>
         title: (title) => (title ? `${title} - ${appName}` : appName),
         resolve: (name) => resolvePageComponent(`./pages/${name}.tsx`, import.meta.glob('./pages/**/*.tsx')),
         setup: ({ App, props }) => {
-            return <App {...props} />;
+            return (
+                <ErrorBoundary>
+                    <App {...props} />
+                </ErrorBoundary>
+            );
         },
     }),
 );
