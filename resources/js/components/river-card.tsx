@@ -1,102 +1,88 @@
+import { LevelBar } from '@/components/level-bar';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { getStatusColor, getStatusText } from '@/data/rivers';
+import { useReveal } from '@/hooks/use-reveal';
+import { statusBadgeClass, statusLabel } from '@/lib/status';
 import { cn } from '@/lib/utils';
 import { River } from '@/types';
 import { Link } from '@inertiajs/react';
-import { ArrowRight, Droplets, Mountain, Thermometer } from 'lucide-react';
+import { ArrowRight, Drop, Mountains, Thermometer } from '@phosphor-icons/react';
+import type { CSSProperties } from 'react';
 
 interface RiverCardProps {
     river: River;
-    // onClick: () => void;
+    index?: number;
 }
 
-export const RiverCard = ({ river }: RiverCardProps) => {
-    return (
-        <>
-            <Link href={`/river/${river.slug}`}>
-                <Card className="group bg-gradient-card relative cursor-pointer overflow-hidden border-border transition-all duration-300 hover:scale-[1.02] hover:border-primary/30 hover:shadow-glow">
-                    {/* Background gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+export const RiverCard = ({ river, index = 0 }: RiverCardProps) => {
+    const ref = useReveal<HTMLDivElement>();
 
-                    <div className="relative p-6">
-                        {/* Header */}
-                        <div className="mb-4 flex items-start justify-between">
-                            <div>
-                                <h3 className="text-xl font-bold text-foreground transition-colors group-hover:text-primary">
-                                    {river.station_name || river.name}
-                                </h3>
-                                <p className="text-sm text-muted-foreground">
-                                    {river.country} • {river.continent}
+    return (
+        <div ref={ref} className="reveal" style={{ '--index': index } as CSSProperties}>
+            <Link href={`/river/${river.slug}`} className="block h-full">
+                <Card className="group h-full gap-0 border-border bg-card py-0 shadow-none transition-all duration-200 hover:border-foreground/15 hover:shadow-hover">
+                    <div className="p-6">
+                        <div className="mb-5 flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                                <h3 className="truncate font-serif text-xl tracking-[-0.01em] text-foreground">{river.station_name || river.name}</h3>
+                                <p className="mt-1 text-sm text-muted-foreground">
+                                    {river.district ? `${river.district}, ` : ''}
+                                    {river.country}
                                 </p>
                             </div>
                             <Badge
-                                variant="secondary"
                                 className={cn(
-                                    'text-xs font-medium',
-                                    river.status === 'low' && 'border-water-low/30 bg-water-low/20 text-neutral-700',
-                                    river.status === 'normal' && 'border-water-normal/30 bg-water-normal/20 text-water-normal',
-                                    river.status === 'high' && 'border-water-high/30 bg-water-high/20 text-water-high',
-                                    river.status === 'critical' && 'border-water-critical/30 bg-water-critical/20 text-water-critical',
+                                    'shrink-0 border-0 text-[11px] font-medium tracking-[0.05em] uppercase',
+                                    statusBadgeClass(river.status),
                                 )}
                             >
-                                {getStatusText(river.status)}
+                                {statusLabel(river.status).replace(' Level', '')}
                             </Badge>
                         </div>
 
-                        {/* Stats Grid */}
-                        <div className="mb-4 grid grid-cols-3 gap-4">
-                            <div className="text-center">
-                                <div className="mb-1 flex items-center justify-center">
-                                    <Droplets className="h-4 w-4 text-primary" />
-                                </div>
-                                <div className="text-lg font-semibold text-foreground">{river.current_water_level}m</div>
-                                <div className="text-xs text-muted-foreground">Water Level</div>
+                        <div className="mb-5 grid grid-cols-3 gap-4">
+                            <div>
+                                <Drop size={16} weight="bold" className="mb-1.5 text-water-low" />
+                                <div className="font-mono text-lg text-foreground">{river.current_water_level}m</div>
+                                <div className="text-xs text-muted-foreground">Level</div>
                             </div>
-
-                            <div className="text-center">
-                                <div className="mb-1 flex items-center justify-center">
-                                    <Thermometer className="h-4 w-4 text-warning" />
-                                </div>
-                                <div className="text-lg font-semibold text-foreground">{river.temperature}°C</div>
-                                <div className="text-xs text-muted-foreground">Temperature</div>
+                            <div>
+                                <Thermometer size={16} weight="bold" className="mb-1.5 text-muted-foreground" />
+                                <div className="font-mono text-lg text-foreground">{river.temperature}°C</div>
+                                <div className="text-xs text-muted-foreground">Temp</div>
                             </div>
-
-                            <div className="text-center">
-                                <div className="mb-1 flex items-center justify-center">
-                                    <Mountain className="h-4 w-4 text-secondary-foreground" />
-                                </div>
-                                <div className="text-lg font-semibold text-foreground">
+                            <div>
+                                <Mountains size={16} weight="bold" className="mb-1.5 text-muted-foreground" />
+                                <div className="font-mono text-lg text-foreground">
                                     {river.elevation !== null && river.elevation !== undefined ? `${river.elevation}m` : 'N/A'}
                                 </div>
                                 <div className="text-xs text-muted-foreground">Elevation</div>
                             </div>
                         </div>
 
-                        {/* Progress Bar */}
-                        <div className="mb-4">
-                            <div className="mb-1 flex justify-between text-xs text-muted-foreground">
-                                <span>Current vs Normal Level</span>
-                                <span>{((river.current_water_level / river.normal_water_level) * 100).toFixed(0)}%</span>
+                        <div>
+                            <div className="mb-1.5 flex justify-between font-mono text-[11px] tracking-[0.08em] text-muted-foreground uppercase">
+                                <span>vs normal {river.normal_water_level}m</span>
+                                <span>
+                                    {river.normal_water_level > 0
+                                        ? `${Math.round((river.current_water_level / river.normal_water_level) * 100)}%`
+                                        : '—'}
+                                </span>
                             </div>
-                            <div className="h-2 w-full rounded-full bg-neutral-200">
-                                <div
-                                    className={cn('h-2 rounded-full transition-all duration-500', `bg-${getStatusColor(river.status)}`)}
-                                    style={{
-                                        width: `${Math.min(100, (river.current_water_level / river.normal_water_level) * 100)}%`,
-                                    }}
-                                />
-                            </div>
+                            <LevelBar current={river.current_water_level} normal={river.normal_water_level} status={river.status} />
                         </div>
 
-                        {/* Footer */}
-                        <div className="flex items-center justify-between">
-                            <div className="text-xs text-muted-foreground">Length: {river.length.toLocaleString()} km</div>
-                            <ArrowRight className="h-4 w-4 text-muted-foreground transition-all group-hover:translate-x-1 group-hover:text-primary" />
+                        <div className="mt-5 flex items-center justify-between border-t border-border pt-4">
+                            <span className="font-mono text-xs text-muted-foreground">{river.length.toLocaleString()} km length</span>
+                            <ArrowRight
+                                size={15}
+                                weight="bold"
+                                className="text-muted-foreground transition-transform duration-200 group-hover:translate-x-0.5 group-hover:text-foreground"
+                            />
                         </div>
                     </div>
                 </Card>
             </Link>
-        </>
+        </div>
     );
 };

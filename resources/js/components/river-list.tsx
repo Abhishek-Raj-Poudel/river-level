@@ -1,48 +1,69 @@
-import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useMemo, useState } from 'react';
-
-import { River } from '@/types';
-import { Filter, MapPin, Search, Waves } from 'lucide-react';
-import { RiverCard } from './river-card';
-
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useReveal } from '@/hooks/use-reveal';
+import { statusBadgeClass, statusDotClass, statusLabel, type RiverStatus } from '@/lib/status';
+import { cn } from '@/lib/utils';
+import { River } from '@/types';
+import { Funnel, MagnifyingGlass, MapPin, Waves } from '@phosphor-icons/react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { RiverCard } from './river-card';
 
 interface RiversListProps {
     rivers: River[];
 }
 
+const STATUS_ORDER: RiverStatus[] = ['normal', 'low', 'high', 'critical'];
+
 export const RiversList = ({ rivers }: RiversListProps) => {
     const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState<string | null>(null);
-    const [districtFilter, setDistrictFilter] = useState<string | null>('Kathmandu');
+    const [statusFilter, setStatusFilter] = useState<RiverStatus | null>(null);
+    const [districtFilter, setDistrictFilter] = useState<string | null>(null);
+    const searchRef = useRef<HTMLInputElement>(null);
+    const heroRef = useReveal<HTMLDivElement>();
+    const controlsRef = useReveal<HTMLDivElement>();
 
-    // Get unique districts from rivers
+    useEffect(() => {
+        const handleKeyDown = (event: KeyboardEvent) => {
+            const target = event.target as HTMLElement | null;
+            const isTyping = target?.tagName === 'INPUT' || target?.tagName === 'TEXTAREA' || target?.isContentEditable;
+
+            if (event.key === '/' && !isTyping) {
+                event.preventDefault();
+                searchRef.current?.focus();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, []);
+
     const districts = useMemo(() => {
         const uniqueDistricts = Array.from(new Set(rivers.map((r) => r.district).filter((d): d is string => Boolean(d))));
         return uniqueDistricts.sort();
     }, [rivers]);
 
-    const filteredRivers = rivers.filter((river) => {
-        const matchesSearch =
-            (river.station_name || river.name).toLowerCase().includes(searchTerm.toLowerCase()) ||
-            river.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            river.country.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            river.continent.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (river.district && river.district.toLowerCase().includes(searchTerm.toLowerCase()));
+    const filteredRivers = useMemo(() => {
+        return rivers.filter((river) => {
+            const haystack = [river.station_name, river.name, river.country, river.continent, river.district].filter(Boolean).join(' ').toLowerCase();
 
-        const matchesStatus = !statusFilter || river.status === statusFilter;
-        const matchesDistrict = !districtFilter || districtFilter === 'all' || river.district === districtFilter;
+            const matchesSearch = haystack.includes(searchTerm.toLowerCase());
+            const matchesStatus = !statusFilter || river.status === statusFilter;
+            const matchesDistrict = !districtFilter || river.district === districtFilter;
 
-        return matchesSearch && matchesStatus && matchesDistrict;
-    });
+            return matchesSearch && matchesStatus && matchesDistrict;
+        });
+    }, [rivers, searchTerm, statusFilter, districtFilter]);
 
-    const statusCounts = {
-        low: rivers.filter((r) => r.status === 'low').length,
-        normal: rivers.filter((r) => r.status === 'normal').length,
-        high: rivers.filter((r) => r.status === 'high').length,
-        critical: rivers.filter((r) => r.status === 'critical').length,
-    };
+    const statusCounts = useMemo(() => {
+        return rivers.reduce(
+            (counts, river) => {
+                counts[river.status] += 1;
+                return counts;
+            },
+            { low: 0, normal: 0, high: 0, critical: 0 } as Record<RiverStatus, number>,
+        );
+    }, [rivers]);
 
     const districtCounts = useMemo(() => {
         const counts: Record<string, number> = {};
@@ -53,145 +74,130 @@ export const RiversList = ({ rivers }: RiversListProps) => {
     }, [districts, rivers]);
 
     return (
-        <div className="bg-gradient-background min-h-screen">
-            <div className="container mx-auto max-w-7xl px-4 py-8">
-                {/* Header */}
-                <div className="mb-12 text-center">
-                    <div className="mb-4 flex items-center justify-center gap-3">
-                        <div className="rounded-xl bg-primary/20 p-3">
-                            <Waves className="h-8 w-8 text-primary" />
-                        </div>
-                        <h1 className="text-4xl font-bold text-foreground md:text-5xl">River Monitor</h1>
+        <div className="relative flex-1">
+            <div aria-hidden className="ambient-spot pointer-events-none absolute inset-x-0 top-0 h-[520px]" />
+
+            <div className="relative">
+                {/* Hero */}
+                <div ref={heroRef} className="reveal container mx-auto max-w-7xl px-6 pt-20 pb-14 text-center md:pt-28">
+                    <div className="mb-6 flex items-center justify-center gap-3">
+                        <span className="flex items-center justify-center rounded-md bg-status-low-bg p-3 text-status-low-fg">
+                            <Waves size={26} weight="fill" />
+                        </span>
+                        <span className="font-mono text-xs tracking-[0.18em] text-muted-foreground uppercase">Nepal Hydrology</span>
                     </div>
-                    <p className="mx-auto max-w-2xl text-xl text-muted-foreground">
-                        Monitoring of Nepal's major rivers with water levels, temperature, and environmental data
+                    <h1 className="mx-auto max-w-3xl font-serif text-4xl leading-[1.05] tracking-[-0.03em] text-foreground md:text-6xl">
+                        Live river levels across Nepal
+                    </h1>
+                    <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
+                        Water level, temperature and elevation readings from monitoring stations, updated throughout the day.
                     </p>
                 </div>
 
-                {/* Search and Filters */}
-                <div className="mb-8 space-y-4">
-                    <div className="relative mx-auto w-full">
-                        <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform text-muted-foreground" />
-                        <Input
-                            placeholder="Search rivers"
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="border-border/50 pl-10 focus:border-primary"
-                        />
-                    </div>
+                <div className="container mx-auto max-w-7xl px-6 pb-24">
+                    {/* Controls */}
+                    <div ref={controlsRef} className="reveal mb-10 space-y-5">
+                        <div className="relative mx-auto max-w-2xl">
+                            <MagnifyingGlass size={16} weight="bold" className="absolute top-1/2 left-3.5 -translate-y-1/2 text-muted-foreground" />
+                            <Input
+                                ref={searchRef}
+                                placeholder="Search by river, station or district"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="h-11 border-border bg-card pr-14 pl-10 shadow-none"
+                            />
+                            <kbd className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 rounded-[4px] border border-border bg-secondary px-1.5 py-0.5 font-mono text-[11px] text-muted-foreground">
+                                /
+                            </kbd>
+                        </div>
 
-                    {/* District Filters */}
-                    <div className="flex flex-wrap items-center justify-center gap-4">
-                        <div className="flex items-center gap-2">
-                            <MapPin className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm text-muted-foreground">Filter by district:</span>
-                            <div className="w-[200px]">
-                                <Select value={districtFilter || 'all'} onValueChange={(value) => setDistrictFilter(value === 'all' ? null : value)}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select district" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="all">All Districts ({rivers.length})</SelectItem>
-                                        {districts.map((district) => (
-                                            <SelectItem key={district} value={district}>
-                                                {district} ({districtCounts[district] || 0})
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-4">
+                            <div className="flex items-center gap-2">
+                                <MapPin size={15} weight="bold" className="text-muted-foreground" />
+                                <span className="font-mono text-xs tracking-[0.12em] text-muted-foreground uppercase">District</span>
+                                <div className="w-[210px]">
+                                    <Select
+                                        value={districtFilter ?? 'all'}
+                                        onValueChange={(value) => setDistrictFilter(value === 'all' ? null : value)}
+                                    >
+                                        <SelectTrigger className="shadow-none">
+                                            <SelectValue placeholder="All districts" />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="all">All Districts ({rivers.length})</SelectItem>
+                                            {districts.map((district) => (
+                                                <SelectItem key={district} value={district}>
+                                                    {district} ({districtCounts[district] ?? 0})
+                                                </SelectItem>
+                                            ))}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                <Funnel size={15} weight="bold" className="text-muted-foreground" />
+                                <span className="font-mono text-xs tracking-[0.12em] text-muted-foreground uppercase">Status</span>
+                            </div>
+
+                            <div className="flex flex-wrap items-center justify-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setStatusFilter(null)}
+                                    className={cn(
+                                        'rounded-full border px-3 py-1 text-xs font-medium tracking-[0.05em] uppercase transition-colors',
+                                        statusFilter === null
+                                            ? 'border-foreground/20 bg-foreground text-background'
+                                            : 'border-border bg-card text-muted-foreground hover:text-foreground',
+                                    )}
+                                >
+                                    All ({rivers.length})
+                                </button>
+
+                                {STATUS_ORDER.map((status) => (
+                                    <button
+                                        key={status}
+                                        type="button"
+                                        onClick={() => setStatusFilter(statusFilter === status ? null : status)}
+                                        className={cn(
+                                            'flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium tracking-[0.05em] uppercase transition-colors',
+                                            statusFilter === status
+                                                ? cn('border-transparent', statusBadgeClass(status))
+                                                : 'border-border bg-card text-muted-foreground hover:text-foreground',
+                                        )}
+                                    >
+                                        <span className={cn('h-1.5 w-1.5 rounded-full', statusDotClass(status))} />
+                                        {statusLabel(status).replace(' Level', '')} ({statusCounts[status]})
+                                    </button>
+                                ))}
                             </div>
                         </div>
-
-                        {districtFilter && districtFilter !== 'all' && (
-                            <div className="flex items-center gap-2 rounded-full bg-primary/10 px-4 py-1.5 text-sm font-medium text-primary">
-                                <span>Showing rivers in:</span>
-                                <span className="font-bold">{districtFilter}</span>
-                            </div>
-                        )}
                     </div>
 
-                    {/* Status Filters */}
-                    <div className="flex flex-wrap items-center justify-center gap-2">
-                        <div className="mr-4 flex items-center gap-1">
-                            <Filter className="h-4 w-4 text-muted-foreground" />
-                            <span className="text-sm text-muted-foreground">Filter by status:</span>
+                    {/* Results count */}
+                    <div className="mb-6">
+                        <p className="font-mono text-xs tracking-[0.12em] text-muted-foreground uppercase">
+                            {filteredRivers.length} of {rivers.length} stations
+                        </p>
+                    </div>
+
+                    {/* Rivers Grid */}
+                    {filteredRivers.length > 0 ? (
+                        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                            {filteredRivers.map((river, index) => (
+                                <RiverCard key={river.id} river={river} index={index} />
+                            ))}
                         </div>
-
-                        <Button
-                            variant={statusFilter === null ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setStatusFilter(null)}
-                            className="h-8"
-                        >
-                            All ({rivers.length})
-                        </Button>
-
-                        <Button
-                            variant={statusFilter === 'normal' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setStatusFilter(statusFilter === 'normal' ? null : 'normal')}
-                            className="h-8"
-                        >
-                            <div className="mr-2 h-2 w-2 rounded-full bg-water-normal" />
-                            Normal ({statusCounts.normal})
-                        </Button>
-
-                        <Button
-                            variant={statusFilter === 'low' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setStatusFilter(statusFilter === 'low' ? null : 'low')}
-                            className="h-8"
-                        >
-                            <div className="mr-2 h-2 w-2 rounded-full bg-water-low" />
-                            Low ({statusCounts.low})
-                        </Button>
-
-                        <Button
-                            variant={statusFilter === 'high' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setStatusFilter(statusFilter === 'high' ? null : 'high')}
-                            className="h-8"
-                        >
-                            <div className="mr-2 h-2 w-2 rounded-full bg-water-high" />
-                            High ({statusCounts.high})
-                        </Button>
-
-                        <Button
-                            variant={statusFilter === 'critical' ? 'default' : 'outline'}
-                            size="sm"
-                            onClick={() => setStatusFilter(statusFilter === 'critical' ? null : 'critical')}
-                            className="h-8"
-                        >
-                            <div className="mr-2 h-2 w-2 rounded-full bg-water-critical" />
-                            Critical ({statusCounts.critical})
-                        </Button>
-                    </div>
-                </div>
-
-                {/* Results count */}
-                <div className="mb-6 text-center">
-                    <p className="text-muted-foreground">
-                        Showing {filteredRivers.length} of {rivers.length} rivers
-                    </p>
-                </div>
-
-                {/* Rivers Grid */}
-                <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-                    {filteredRivers.map((river) => (
-                        <RiverCard key={river.id} river={river} />
-                    ))}
-                </div>
-
-                {/* No results */}
-                {filteredRivers.length === 0 && (
-                    <div className="py-12 text-center">
-                        <div className="mb-4 inline-block rounded-xl bg-muted/20 p-4">
-                            <Search className="h-8 w-8 text-muted-foreground" />
+                    ) : (
+                        <div className="border border-dashed border-border py-20 text-center">
+                            <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-md bg-secondary text-muted-foreground">
+                                <MagnifyingGlass size={22} weight="bold" />
+                            </span>
+                            <h3 className="mb-1 font-serif text-xl text-foreground">No stations found</h3>
+                            <p className="text-sm text-muted-foreground">Try a different search term or clear the filters.</p>
                         </div>
-                        <h3 className="mb-2 text-xl font-semibold text-foreground">No rivers found</h3>
-                        <p className="text-muted-foreground">Try adjusting your search terms or filters</p>
-                    </div>
-                )}
+                    )}
+                </div>
             </div>
         </div>
     );

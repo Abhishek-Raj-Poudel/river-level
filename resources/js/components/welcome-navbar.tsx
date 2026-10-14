@@ -1,31 +1,29 @@
 import { Button } from '@/components/ui/button';
 import { Link } from '@inertiajs/react';
-import { LogIn, UserPlus, Waves } from 'lucide-react';
+import { SignIn, UserPlus, Waves } from '@phosphor-icons/react';
 
 export function WelcomeNavbar() {
     return (
-        <nav className="border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="container mx-auto max-w-7xl px-4">
+        <nav className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="container mx-auto max-w-7xl px-6">
                 <div className="flex h-16 items-center justify-between">
-                    {/* Logo */}
-                    <Link href="/" className="flex items-center gap-2 font-semibold">
-                        <div className="rounded-lg bg-primary/20 p-2">
-                            <Waves className="h-5 w-5 text-primary" />
-                        </div>
-                        <span className="text-lg">River Monitor</span>
+                    <Link href="/" className="flex items-center gap-2.5">
+                        <span className="flex items-center justify-center rounded-md bg-status-low-bg p-2 text-status-low-fg">
+                            <Waves size={18} weight="fill" />
+                        </span>
+                        <span className="text-[15px] font-medium tracking-tight text-foreground">River Monitor</span>
                     </Link>
 
-                    {/* Auth Buttons */}
-                    <div className="flex items-center gap-3">
-                        <Button variant="ghost" asChild>
+                    <div className="flex items-center gap-2">
+                        <Button variant="ghost" asChild className="shadow-none">
                             <Link href="/login">
-                                <LogIn className="mr-2 h-4 w-4" />
+                                <SignIn size={16} weight="bold" />
                                 Log In
                             </Link>
                         </Button>
-                        <Button asChild>
+                        <Button asChild className="rounded-md shadow-none active:scale-[0.98]">
                             <Link href="/register">
-                                <UserPlus className="mr-2 h-4 w-4" />
+                                <UserPlus size={16} weight="bold" />
                                 Register
                             </Link>
                         </Button>
@@ -35,4 +33,3 @@ export function WelcomeNavbar() {
         </nav>
     );
 }
-
