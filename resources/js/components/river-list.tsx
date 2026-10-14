@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { River } from '@/types';
 import { Funnel, MagnifyingGlass, MapPin, Waves } from '@phosphor-icons/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { DataFreshness } from './data-freshness';
 import { RiverCard } from './river-card';
 
 interface RiversListProps {
@@ -73,6 +74,12 @@ export const RiversList = ({ rivers }: RiversListProps) => {
         return counts;
     }, [districts, rivers]);
 
+    const dataRefreshedAt = useMemo(() => {
+        const timestamps = rivers.map((river) => new Date(river.last_updated).getTime()).filter((time) => !Number.isNaN(time));
+
+        return timestamps.length > 0 ? new Date(Math.max(...timestamps)) : null;
+    }, [rivers]);
+
     return (
         <div className="relative flex-1">
             <div aria-hidden className="ambient-spot pointer-events-none absolute inset-x-0 top-0 h-[520px]" />
@@ -92,6 +99,7 @@ export const RiversList = ({ rivers }: RiversListProps) => {
                     <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-muted-foreground">
                         Water level, temperature and elevation readings from monitoring stations, updated throughout the day.
                     </p>
+                    <DataFreshness updatedAt={dataRefreshedAt} className="mt-4" />
                 </div>
 
                 <div className="container mx-auto max-w-7xl px-6 pb-24">
