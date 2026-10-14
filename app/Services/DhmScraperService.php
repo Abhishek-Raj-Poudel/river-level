@@ -181,7 +181,8 @@ class DhmScraperService
 
         $station = [
             'index' => $item['id'] ?? null,
-            'basin' => $item['basin'] ?? null,
+            'dhm_station_id' => isset($item['id']) && is_numeric($item['id']) ? (int) $item['id'] : null,
+            'basin' => ! empty($item['basin']) ? $item['basin'] : null,
             'station_index' => $item['stationIndex'] ?? null,
             'station_name' => trim((string) ($item['name'] ?? '')),
             'district' => trim((string) ($item['district'] ?? '')),
@@ -194,6 +195,7 @@ class DhmScraperService
             'status' => $item['status'] ?? null,
             'lat' => $item['latitude'] ?? null,
             'lng' => $item['longitude'] ?? null,
+            'measured_at' => $item['waterLevel']['datetime'] ?? null,
         ];
 
         $station['status'] = $this->mapStatus(
@@ -271,7 +273,7 @@ class DhmScraperService
         foreach ($dhmData as $station) {
             try {
                 // Skip entries with missing required data or invalid water levels
-                if (empty($station['district']) || empty($station['station_name']) || ! $this->isValidWaterLevel($station['water_level'] ?? null)) {
+                if (empty($station['station_name']) || ! $this->isValidWaterLevel($station['water_level'] ?? null)) {
                     Log::warning('Skipping DHM data entry with missing required fields', [
                         'district' => $station['district'] ?? 'missing',
                         'station_name' => $station['station_name'] ?? 'missing',
@@ -281,10 +283,8 @@ class DhmScraperService
                     continue;
                 }
 
-                // Find existing RiverLevel record by district and station_name
-                $riverLevel = RiverLevel::where('district', $station['district'])
-                    ->where('station_name', $station['station_name'])
-                    ->first();
+                // Find existing RiverLevel record by DHM station id, then district + station_name.
+                $riverLevel = $this->findExistingRiverLevel($station);
 
                 if (! $riverLevel) {
                     Log::warning('No matching RiverLevel record found for DHM data', [
@@ -341,7 +341,8 @@ class DhmScraperService
      */
     protected function applyLiveMeasurement(RiverLevel $riverLevel, array $station, float $currentLevel): void
     {
-        $today = Carbon::now()->toDateString();
+        $measuredAt = $this->parseMeasuredAt($station['measured_at'] ?? null) ?? Carbon::now();
+        $today = $measuredAt->toDateString();
         $existingMeasurement = RiverMeasurement::where('river_level_id', $riverLevel->id)
             ->whereDate('measured_at', $today)
             ->first();
@@ -350,7 +351,7 @@ class DhmScraperService
             RiverMeasurement::create([
                 'river_level_id' => $riverLevel->id,
                 'water_level' => $currentLevel,
-                'measured_at' => Carbon::now(),
+                'measured_at' => $measuredAt,
             ]);
 
             RiverMeasurement::where('river_level_id', $riverLevel->id)
@@ -359,6 +360,8 @@ class DhmScraperService
         }
 
         $riverLevel->update([
+            'dhm_station_id' => $station['dhm_station_id'] ?? $riverLevel->dhm_station_id,
+            'basin' => $station['basin'] ?? $riverLevel->basin,
             'current_water_level' => $currentLevel,
             'current_flow_rate' => ! empty($station['discharge']) ? (float) $station['discharge'] : $riverLevel->current_flow_rate,
             'elevation' => isset($station['elevation']) && is_numeric($station['elevation']) ? (float) $station['elevation'] : $riverLevel->elevation,
@@ -387,7 +390,7 @@ class DhmScraperService
 
         foreach ($rows as $station) {
             try {
-                if (empty($station['district']) || empty($station['station_name']) || ! $this->isValidWaterLevel($station['water_level'] ?? null)) {
+                if (empty($station['station_name']) || ! $this->isValidWaterLevel($station['water_level'] ?? null)) {
                     Log::warning('Skipping live data entry with missing required fields', [
                         'district' => $station['district'] ?? 'missing',
                         'station_name' => $station['station_name'] ?? 'missing',
@@ -399,9 +402,7 @@ class DhmScraperService
 
                 $currentLevel = (float) $station['water_level'];
 
-                $riverLevel = RiverLevel::where('district', $station['district'])
-                    ->where('station_name', $station['station_name'])
-                    ->first();
+                $riverLevel = $this->findExistingRiverLevel($station);
 
                 if ($riverLevel) {
                     $riverLevel->withoutEvents(function () use ($riverLevel, $station, $currentLevel) {
@@ -420,7 +421,8 @@ class DhmScraperService
                 RiverLevel::withoutEvents(function () use ($station, $currentLevel, &$created) {
                     $river = RiverLevel::create([
                         'id' => (string) Str::uuid(),
-                        'slug' => Str::slug($station['station_name']),
+                        'dhm_station_id' => $station['dhm_station_id'] ?? null,
+                        'slug' => $this->uniqueSlug($station['station_name'], $station['dhm_station_id'] ?? null),
                         'name' => $station['station_name'],
                         'country' => 'Nepal',
                         'continent' => 'Asia',
@@ -471,6 +473,75 @@ class DhmScraperService
             'errors' => $errors,
             'total_processed' => count($rows),
         ];
+    }
+
+    /**
+     * Locate the RiverLevel a live station belongs to.
+     *
+     * Prefers the stable DHM station id, then district + station_name, and
+     * finally station_name alone for stations the feed reports without a district.
+     */
+    protected function findExistingRiverLevel(array $station): ?RiverLevel
+    {
+        if (! empty($station['dhm_station_id'])) {
+            $match = RiverLevel::where('dhm_station_id', $station['dhm_station_id'])->first();
+
+            if ($match) {
+                return $match;
+            }
+        }
+
+        if (! empty($station['district'])) {
+            return RiverLevel::where('district', $station['district'])
+                ->where('station_name', $station['station_name'])
+                ->first();
+        }
+
+        return RiverLevel::where('station_name', $station['station_name'])
+            ->where(fn ($query) => $query->whereNull('district')->orWhere('district', ''))
+            ->first();
+    }
+
+    /**
+     * Build a slug that does not collide with the unique slug index. Falls back
+     * to appending the DHM station id, then a numeric suffix.
+     */
+    protected function uniqueSlug(string $name, ?int $dhmStationId = null): string
+    {
+        $base = Str::slug($name);
+        $base = $base === '' ? 'station' : $base;
+
+        if (! RiverLevel::where('slug', $base)->exists()) {
+            return $base;
+        }
+
+        if ($dhmStationId !== null && ! RiverLevel::where('slug', $base.'-'.$dhmStationId)->exists()) {
+            return $base.'-'.$dhmStationId;
+        }
+
+        $suffix = 2;
+
+        while (RiverLevel::where('slug', $base.'-'.$suffix)->exists()) {
+            $suffix++;
+        }
+
+        return $base.'-'.$suffix;
+    }
+
+    /**
+     * Parse the DHM `waterLevel.datetime` (ISO 8601, UTC) when present.
+     */
+    protected function parseMeasuredAt(mixed $value): ?Carbon
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($value);
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     private function normalizeUrl(?string $url): ?string

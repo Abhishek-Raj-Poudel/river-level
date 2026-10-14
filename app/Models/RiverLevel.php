@@ -19,10 +19,12 @@ class RiverLevel extends Model
 
     protected $fillable = [
         'id',
+        'dhm_station_id',
         'slug',
         'name',
         'station_name',
         'district',
+        'basin',
         'contact_number',
         'nearby_landmark',
         'scrape_link',
@@ -45,6 +47,7 @@ class RiverLevel extends Model
     ];
 
     protected $casts = [
+        'dhm_station_id' => 'integer',
         'last_updated' => 'datetime',
         'elevation' => 'float',
         'elevation_checked_at' => 'datetime',
